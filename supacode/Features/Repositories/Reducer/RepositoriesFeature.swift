@@ -708,7 +708,7 @@ struct RepositoriesFeature {
         return .send(.delegate(.selectedWorktreeChanged(nil)))
 
       case .setSidebarSelectedWorktreeIDs(let worktreeIDs):
-        let validWorktreeIDs = Set(state.repositories.flatMap { $0.worktrees.map(\.id) })
+        let validWorktreeIDs = state.selectableWorktreeIDs
         var nextWorktreeIDs = worktreeIDs.intersection(validWorktreeIDs)
         if let selectedWorktreeID = state.selectedWorktreeID, validWorktreeIDs.contains(selectedWorktreeID) {
           nextWorktreeIDs.insert(selectedWorktreeID)
@@ -1358,10 +1358,10 @@ struct RepositoriesFeature {
         }
         state.insertWorktree(worktree, repositoryID: repositoryID)
         Self.syncSidebar(&state)
-        // Mark pending so the setup-script path picks it up after reconcile.
-        // Arm the focus token so the detail view auto-focuses on first show.
+        // Synchronous so the detail body never observes a brief `.idle` window
+        // between the real-worktree swap and the setup-script path.
+        state.sidebarItems[id: worktree.id]?.lifecycle = .pending
         return .merge(
-          .send(.sidebarItems(.element(id: worktree.id, action: .lifecycleChanged(.pending)))),
           .send(.sidebarItems(.element(id: worktree.id, action: .focusTerminalRequested))),
           .send(.reloadRepositories(animated: false)),
           .send(.delegate(.repositoriesChanged(state.repositories))),
@@ -3926,6 +3926,15 @@ extension RepositoriesFeature.State {
     return pendingWorktrees.first(where: { $0.id == id })
   }
 
+  /// Valid sidebar-selection targets: live worktrees plus still-creating pending entries.
+  var selectableWorktreeIDs: Set<Worktree.ID> {
+    var ids = Set(repositories.flatMap { $0.worktrees.map(\.id) })
+    for pending in pendingWorktrees {
+      ids.insert(pending.id)
+    }
+    return ids
+  }
+
   func shouldFocusTerminal(for worktreeID: Worktree.ID) -> Bool {
     sidebarItems[id: worktreeID]?.shouldFocusTerminal == true
   }
@@ -4616,10 +4625,11 @@ extension RepositoriesFeature.State {
       return .send(.delegate(.selectedWorktreeChanged(nil)))
     }
 
-    // Validate against the live repository roster so this stays robust when
-    // `sidebarGrouping` hasn't been reconciled yet (e.g. tests that drive the
-    // reducer without going through `applyRepositories`).
-    let orderedWorktreeIDs: [Worktree.ID] = repositories.flatMap { $0.worktrees.map(\.id) }
+    // Validate against the live roster + pending entries so a reselect of a
+    // still-creating row doesn't fall through to the empty-state; also stays
+    // robust when `sidebarGrouping` hasn't been reconciled yet.
+    let orderedWorktreeIDs: [Worktree.ID] =
+      repositories.flatMap { $0.worktrees.map(\.id) } + pendingWorktrees.map(\.id)
     let allWorktreeIDs = Set(orderedWorktreeIDs)
     let requestedWorktreeIDs = Set(selections.compactMap(\.worktreeID))
     let nextSidebarSelectedWorktreeIDs = requestedWorktreeIDs.intersection(allWorktreeIDs)
