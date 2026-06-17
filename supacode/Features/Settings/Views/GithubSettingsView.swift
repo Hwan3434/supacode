@@ -61,22 +61,22 @@ struct GithubSettingsView: View {
     Form {
       Section {
         Toggle(isOn: $store.githubIntegrationEnabled) {
-          Text("Enable GitHub Integration")
-          Text("Pull request checks and merge actions in the command palette.")
+          Text("GitHub 연동 활성화")
+          Text("커맨드 팔레트에서 풀 리퀘스트 확인 및 병합 작업을 수행합니다.")
         }
       }
       Section("GitHub CLI") {
         switch viewModel.state {
         case .loading:
-          LabeledContent("Checking GitHub CLI…") {
+          LabeledContent("GitHub CLI 확인 중…") {
             ProgressView().controlSize(.small)
           }
 
         case .unavailable:
           Label {
             VStack(alignment: .leading, spacing: 2) {
-              Text("GitHub CLI not found")
-              Text("Install `gh` to enable pull request checks.")
+              Text("GitHub CLI를 찾을 수 없음")
+              Text("`gh`를 설치하여 풀 리퀘스트 확인을 활성화하십시오.")
                 .foregroundStyle(.secondary)
                 .font(.callout)
             }
@@ -89,8 +89,8 @@ struct GithubSettingsView: View {
         case .notAuthenticated:
           Label {
             VStack(alignment: .leading, spacing: 2) {
-              Text("Not authenticated")
-              Text("Run `gh auth login` in a terminal to authenticate.")
+              Text("인증되지 않음")
+              Text("터미널에서 `gh auth login`을 실행하여 인증하십시오.")
                 .foregroundStyle(.secondary)
                 .font(.callout)
             }
@@ -103,8 +103,8 @@ struct GithubSettingsView: View {
         case .outdated:
           Label {
             VStack(alignment: .leading, spacing: 2) {
-              Text("GitHub CLI outdated")
-              Text("Update to the latest version for full support.")
+              Text("GitHub CLI 구버전")
+              Text("모든 기능을 지원하려면 최신 버전으로 업데이트하십시오.")
                 .foregroundStyle(.secondary)
                 .font(.callout)
             }
@@ -115,17 +115,17 @@ struct GithubSettingsView: View {
           }
 
         case .authenticated(let username, let host):
-          LabeledContent("Signed in as") {
+          LabeledContent("로그인된 계정") {
             Text(username)
           }
-          LabeledContent("Host") {
+          LabeledContent("호스트") {
             Text(host)
           }
 
         case .error(let message):
           Label {
             VStack(alignment: .leading, spacing: 2) {
-              Text("Error checking status")
+              Text("상태 확인 오류")
               Text(message)
                 .foregroundStyle(.secondary)
                 .font(.callout)
@@ -139,39 +139,39 @@ struct GithubSettingsView: View {
 
         switch viewModel.state {
         case .unavailable:
-          Button("Get GitHub CLI") {
+          Button("GitHub CLI 다운로드") {
             NSWorkspace.shared.open(URL(string: "https://cli.github.com")!)
           }
         case .outdated:
-          Button("Update GitHub CLI") {
+          Button("GitHub CLI 업데이트") {
             NSWorkspace.shared.open(URL(string: "https://cli.github.com")!)
           }
         default:
           EmptyView()
         }
       }
-      Section("Pull Requests") {
+      Section("풀 리퀘스트") {
         Picker(selection: $store.pullRequestMergeStrategy) {
           ForEach(PullRequestMergeStrategy.allCases) { strategy in
             Text(strategy.title)
               .tag(strategy)
           }
         } label: {
-          Text("Merge strategy")
-          Text("Default strategy when merging PRs from the command palette.")
+          Text("병합 전략")
+          Text("커맨드 팔레트에서 PR 병합 시 기본 전략입니다.")
         }
         Picker(selection: $store.mergedWorktreeAction) {
-          Text("Do nothing").tag(MergedWorktreeAction?.none)
+          Text("아무것도 하지 않음").tag(MergedWorktreeAction?.none)
           ForEach(MergedWorktreeAction.allCases) { action in
             Text(action.title).tag(MergedWorktreeAction?.some(action))
           }
         } label: {
-          Text("When a pull request is merged")
+          Text("풀 리퀘스트가 병합될 때")
           switch store.mergedWorktreeAction {
           case .archive:
-            Text("Archives the worktree when its pull request is merged.")
+            Text("풀 리퀘스트가 병합되면 워크트리를 보관합니다.")
           case .delete:
-            Text("Follows the \"Delete local branch with worktree\" option in Worktrees settings.")
+            Text("워크트리 설정의 \"워크트리와 함께 로컬 브랜치 삭제\" 옵션을 따릅니다.")
           case nil:
             EmptyView()
           }

@@ -22,48 +22,48 @@ public struct RepositorySettingsView: View {
       Section {
         if store.isBranchDataLoaded {
           Picker(selection: $store.settings.worktreeBaseRef) {
-            Text("Auto \(Text(store.defaultWorktreeBaseRef).foregroundStyle(.secondary))")
+            Text("자동 \(Text(store.defaultWorktreeBaseRef).foregroundStyle(.secondary))")
               .tag(String?.none)
             ForEach(baseRefOptions, id: \.self) { ref in
               Text(ref).tag(Optional(ref))
             }
           } label: {
-            Text("Base branch")
-            Text("New worktrees branch from this ref.")
+            Text("기준 브랜치")
+            Text("이 참조에서 새 워크트리 브랜치를 생성합니다.")
           }
         } else {
           LabeledContent {
             ProgressView()
               .controlSize(.small)
           } label: {
-            Text("Base branch")
-            Text("New worktrees branch from this ref.")
+            Text("기준 브랜치")
+            Text("이 참조에서 새 워크트리 브랜치를 생성합니다.")
           }
         }
       }
       Section {
         Picker(selection: settings.copyIgnoredOnWorktreeCreate) {
-          Text("Global \(Text(store.globalCopyIgnoredOnWorktreeCreate ? "Yes" : "No").foregroundStyle(.secondary))")
+          Text("전역 \(Text(store.globalCopyIgnoredOnWorktreeCreate ? "예" : "아니요").foregroundStyle(.secondary))")
             .tag(Bool?.none)
-          Text("Yes").tag(Bool?.some(true))
-          Text("No").tag(Bool?.some(false))
+          Text("예").tag(Bool?.some(true))
+          Text("아니요").tag(Bool?.some(false))
         } label: {
-          Text("Copy ignored files to new worktrees")
-          Text("Copies gitignored files from the main worktree.")
+          Text("새 워크트리에 무시된 파일 복사")
+          Text("메인 워크트리에서 gitignore된 파일을 복사합니다.")
         }
         .disabled(store.isBareRepository)
         Picker(selection: settings.copyUntrackedOnWorktreeCreate) {
-          Text("Global \(Text(store.globalCopyUntrackedOnWorktreeCreate ? "Yes" : "No").foregroundStyle(.secondary))")
+          Text("전역 \(Text(store.globalCopyUntrackedOnWorktreeCreate ? "예" : "아니요").foregroundStyle(.secondary))")
             .tag(Bool?.none)
-          Text("Yes").tag(Bool?.some(true))
-          Text("No").tag(Bool?.some(false))
+          Text("예").tag(Bool?.some(true))
+          Text("아니요").tag(Bool?.some(false))
         } label: {
-          Text("Copy untracked files to new worktrees")
-          Text("Copies untracked files from the main worktree.")
+          Text("새 워크트리에 추적되지 않는 파일 복사")
+          Text("메인 워크트리에서 추적되지 않는 파일을 복사합니다.")
         }
         .disabled(store.isBareRepository)
         if store.isBareRepository {
-          Text("Copy flags are ignored for bare repositories.")
+          Text("bare 저장소에서는 복사 플래그가 무시됩니다.")
             .font(.footnote)
             .foregroundStyle(.tertiary)
         }
@@ -77,35 +77,35 @@ public struct RepositorySettingsView: View {
             ).path(percentEncoded: false)
           )
         ) {
-          Text("Default directory").monospaced(false)
-          Text("Parent path for new worktrees.").monospaced(false)
+          Text("기본 디렉터리").monospaced(false)
+          Text("새 워크트리의 상위 경로입니다.").monospaced(false)
         }.monospaced()
       } header: {
-        Text("Worktree")
+        Text("워크트리")
       } footer: {
-        Text("e.g., `\(exampleWorktreePath)`")
+        Text("예: `\(exampleWorktreePath)`")
       }
-      Section("Pull Requests") {
+      Section("풀 리퀘스트") {
         Picker(selection: settings.pullRequestMergeStrategy) {
-          Text("Global \(Text(store.globalPullRequestMergeStrategy.title).foregroundStyle(.secondary))")
+          Text("전역 \(Text(store.globalPullRequestMergeStrategy.title).foregroundStyle(.secondary))")
             .tag(PullRequestMergeStrategy?.none)
           ForEach(PullRequestMergeStrategy.allCases) { strategy in
             Text(strategy.title)
               .tag(PullRequestMergeStrategy?.some(strategy))
           }
         } label: {
-          Text("Merge strategy")
-          Text("Used when merging PRs from the command palette.")
+          Text("병합 전략")
+          Text("커맨드 팔레트에서 PR 병합 시 사용됩니다.")
         }
       }
-      Section("Environment Variables") {
+      Section("환경 변수") {
         ScriptEnvironmentRow(
           name: "SUPACODE_WORKTREE_PATH",
-          description: "Path to the active worktree."
+          description: "활성 워크트리 경로."
         )
         ScriptEnvironmentRow(
           name: "SUPACODE_ROOT_PATH",
-          description: "Path to the repository root."
+          description: "저장소 루트 경로."
         )
       }
     }
@@ -132,10 +132,10 @@ private struct ScriptEnvironmentRow: View {
         NSPasteboard.general.setString(name, forType: .string)
       } label: {
         Image(systemName: "doc.on.doc")
-          .accessibilityLabel("Copy variable key")
+          .accessibilityLabel("변수 키 복사")
       }
       .buttonStyle(.borderless)
-      .help("Copy variable key.")
+      .help("변수 키를 복사합니다.")
     } label: {
       Text(name).monospaced()
       Text(description)

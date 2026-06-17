@@ -12,21 +12,21 @@ struct DeveloperSettingsView: View {
         DeeplinkRow()
         CLIInstallRow(store: store)
       } footer: {
-        Text("Symlinks `supacode` to `/usr/local/bin`. This is not required to run `supacode` in the app terminals.")
+        Text("`/usr/local/bin`에 `supacode`의 심볼릭 링크를 생성합니다. 이는 앱 터미널에서 `supacode`를 실행하는 데 필수적이지는 않습니다.")
       }
       Section {
         Toggle(isOn: $store.richAgentNotificationsEnabled) {
-          Text("Rich notifications")
-          Text("Stop and notification hooks deliver the agent's last message instead of a generic alert.")
+          Text("풍부한 알림")
+          Text("종료 및 알림 훅이 일반 알림 대신 에이전트의 마지막 메시지를 전달합니다.")
         }
         Toggle(isOn: $store.agentPresenceBadgesEnabled) {
-          Text("Agent badges")
-          Text("Show an icon in the sidebar and tab while a coding agent is running in that surface.")
+          Text("에이전트 배지")
+          Text("코딩 에이전트가 해당 화면에서 실행 중일 때 사이드바 및 탭에 아이콘을 표시합니다.")
         }
       } header: {
-        Text("Coding Agents")
+        Text("코딩 에이전트")
       } footer: {
-        Text("These features require the per-agent enhancements installed below.")
+        Text("이 기능들은 아래의 에이전트별 통합 설치가 필요합니다.")
       }
       Section {
         ForEach(SkillAgent.allCases, id: \.self) { agent in
@@ -40,18 +40,18 @@ struct DeveloperSettingsView: View {
       }
       Section {
         Toggle(isOn: $store.autoUpdateAgentIntegrationsEnabled) {
-          Text("Automatically update agent integrations")
+          Text("에이전트 연동 자동 업데이트")
           Text(
-            "Re-installs hooks for any agent reporting an outdated integration when Supacode comes to the foreground.")
+            "Supacode가 포그라운드로 올 때 구버전 연동이 보고된 에이전트의 훅을 다시 설치합니다.")
         }
-        .help("Silently re-applies the canonical hook layout to outdated agent integrations when Supacode activates.")
+        .help("Supacode 활성화 시 구버전 에이전트 연동에 표준 훅 레이아웃을 백그라운드에서 다시 적용합니다.")
       }
     }
     .formStyle(.grouped)
     .padding(.top, -20)
     .padding(.leading, -8)
     .padding(.trailing, -6)
-    .navigationTitle("Developer")
+    .navigationTitle("개발자")
   }
 }
 
@@ -63,8 +63,8 @@ private struct DeeplinkRow: View {
   var body: some View {
     LabeledContent {
     } label: {
-      Text("Deeplinks")
-      Text("Deeplink Reference \u{2197}")
+      Text("딥링크")
+      Text("딥링크 참조 \u{2197}")
         .foregroundStyle(.tint)
         .contentShape(.rect)
         .accessibilityAddTraits(.isButton)
@@ -84,21 +84,21 @@ private struct CLIInstallRow: View {
         ProgressView()
       case .installed:
         ControlGroup {
-          Label("Installed", systemImage: "checkmark")
-          Button("Uninstall", role: .destructive) { store.send(.cliUninstallTapped) }
+          Label("설치됨", systemImage: "checkmark")
+          Button("제거", role: .destructive) { store.send(.cliUninstallTapped) }
         }
       case .notInstalled, .failed:
-        Button("Install") { store.send(.cliInstallTapped) }
+        Button("설치") { store.send(.cliInstallTapped) }
       case .installing:
-        Button("Installing\u{2026}") {}
+        Button("설치 중\u{2026}") {}
           .disabled(true)
       case .uninstalling:
-        Button("Uninstalling\u{2026}") {}
+        Button("제거 중\u{2026}") {}
           .disabled(true)
       }
     } label: {
-      Text("Command Line Tool")
-      Text("CLI Reference \u{2197}")
+      Text("커맨드 라인 도구")
+      Text("CLI 참조 \u{2197}")
         .foregroundStyle(.tint)
         .contentShape(.rect)
         .accessibilityAddTraits(.isButton)
@@ -149,21 +149,21 @@ private struct AgentIntegrationRow: View {
       ProgressView()
     case .ready(.installed):
       ControlGroup {
-        Label("Installed", systemImage: "checkmark")
-        Button("Uninstall", role: .destructive, action: uninstallAction)
+        Label("설치됨", systemImage: "checkmark")
+        Button("제거", role: .destructive, action: uninstallAction)
       }
     case .ready(.outdated):
       ControlGroup {
-        Button("Update", action: installAction)
-        Button("Uninstall", role: .destructive, action: uninstallAction)
+        Button("업데이트", action: installAction)
+        Button("제거", role: .destructive, action: uninstallAction)
       }
     case .ready(.notInstalled), .failed:
-      Button("Install", action: installAction)
+      Button("설치", action: installAction)
     case .installing:
-      Button("Installing\u{2026}") {}
+      Button("설치 중\u{2026}") {}
         .disabled(true)
     case .uninstalling:
-      Button("Uninstalling\u{2026}") {}
+      Button("제거 중\u{2026}") {}
         .disabled(true)
     }
   }
@@ -174,14 +174,14 @@ private struct AgentIntegrationRow: View {
 extension SkillAgent {
   fileprivate var integrationSubtitle: LocalizedStringKey {
     switch self {
-    case .claude: "Hooks in `~/.claude/settings.json` and skill in `~/.claude/skills/`."
+    case .claude: "`~/.claude/settings.json`의 훅 및 `~/.claude/skills/`의 스킬."
     case .codex:
       """
-      Hooks in `~/.codex/hooks.json` and skill in `~/.codex/skills/`. After installing, trust the hooks in Codex; \
-      the badge appears once you send the first message.
+      `~/.codex/hooks.json`의 훅 및 `~/.codex/skills/`의 스킬. 설치 후 Codex에서 훅을 신뢰하십시오; \
+      첫 메시지를 보내면 배지가 나타납니다.
       """
-    case .kiro: "Hooks in `~/.kiro/agents/` and skill in `~/.kiro/skills/`."
-    case .pi: "Extension in `~/.pi/agent/extensions/` and skill in `~/.pi/agent/skills/`."
+    case .kiro: "`~/.kiro/agents/`의 훅 및 `~/.kiro/skills/`의 스킬."
+    case .pi: "`~/.pi/agent/extensions/`의 익스텐션 및 `~/.pi/agent/skills/`의 스킬."
     }
   }
 }

@@ -21,16 +21,16 @@ public struct RepositoryScriptsSettingsView: View {
         if store.isGitRepository {
           LifecycleScriptSection(
             text: $store.settings.setupScript,
-            title: "Setup Script",
-            subtitle: "Runs once after worktree creation.",
+            title: "설정 스크립트",
+            subtitle: "워크트리 생성 후 한 번 실행됩니다.",
             icon: "truck.box.badge.clock",
             iconColor: .blue,
             footerExample: "pnpm install"
           )
           LifecycleScriptSection(
             text: $store.settings.archiveScript,
-            title: "Archive Script",
-            subtitle: "Runs before a worktree is archived.",
+            title: "보관 스크립트",
+            subtitle: "워크트리를 보관하기 전에 실행됩니다.",
             icon: "archivebox",
             iconColor: .orange,
             footerExample: "docker compose down"
@@ -38,10 +38,10 @@ public struct RepositoryScriptsSettingsView: View {
         }
         LifecycleScriptSection(
           text: $store.settings.deleteScript,
-          title: "Delete Script",
+          title: "삭제 스크립트",
           subtitle: store.isGitRepository
-            ? "Runs before a worktree is deleted."
-            : "Runs before this folder is removed from Supacode.",
+            ? "워크트리를 삭제하기 전에 실행됩니다."
+            : "이 폴더를 Supacode에서 제거하기 전에 실행됩니다.",
           icon: "trash",
           iconColor: .red,
           footerExample: "docker compose down"
@@ -51,21 +51,21 @@ public struct RepositoryScriptsSettingsView: View {
         ForEach($store.settings.scripts) { $script in
           Section {
             if script.kind == .custom {
-              TextField("Name", text: $script.name)
-              LabeledContent("Color") {
+              TextField("이름", text: $script.name)
+              LabeledContent("색상") {
                 ColorSwatchRow(color: $script.tintColor)
               }
             }
             ScriptCommandEditor(text: $script.command, label: script.displayName)
-            Button("Remove Script…", role: .destructive) {
+            Button("스크립트 제거…", role: .destructive) {
               store.send(.removeScript(script.id))
             }
             .buttonStyle(.plain)
             .foregroundStyle(.red)
-            .help("Remove this script.")
+            .help("이 스크립트를 제거합니다.")
           } header: {
             Label {
-              Text("\(script.displayName) Script")
+              Text("\(script.displayName) 스크립트")
                 .font(.body)
                 .bold()
             } icon: {
@@ -99,7 +99,7 @@ public struct RepositoryScriptsSettingsView: View {
                 store.send(.addScript(kind))
               } label: {
                 Label {
-                  Text("\(kind.defaultName) Script")
+                  Text("\(kind.defaultName) 스크립트")
                 } icon: {
                   Image.tintedSymbol(kind.defaultSystemImage, color: kind.defaultTintColor.nsColor)
                 }
@@ -108,9 +108,9 @@ public struct RepositoryScriptsSettingsView: View {
           }
         } label: {
           Image(systemName: "plus")
-            .accessibilityLabel("Add Script")
+            .accessibilityLabel("스크립트 추가")
         }
-        .help("Add a new script.")
+        .help("새 스크립트를 추가합니다.")
       }
     }
     .dismissSystemColorPanelOnDisappear()
@@ -145,7 +145,7 @@ private struct LifecycleScriptSection: View {
         Image(systemName: icon).foregroundStyle(iconColor).accessibilityHidden(true)
       }.labelStyle(.verticallyCentered)
     } footer: {
-      Text("e.g., `\(footerExample)`")
+      Text("예: `\(footerExample)`")
     }
   }
 }

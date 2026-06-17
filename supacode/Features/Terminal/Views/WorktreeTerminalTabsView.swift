@@ -26,6 +26,8 @@ struct WorktreeTerminalTabsView: View {
     let unfocusedSplitOverlay = manager.unfocusedSplitOverlay()
     let _ = chromeAppearance
     VStack(spacing: 0) {
+      // Tab feature has been completely removed to avoid confusion with worktree switching.
+      /*
       if !state.shouldHideTabBar {
         TerminalTabBarView(
           manager: state.tabManager,
@@ -57,6 +59,7 @@ struct WorktreeTerminalTabsView: View {
         )
         .transition(.move(edge: .top).combined(with: .opacity))
       }
+      */
       if let selectedId = state.tabManager.selectedTabId {
         TerminalTabContentStack(tabs: state.tabManager.tabs, selectedTabId: selectedId) { tabId in
           TerminalSplitTreePane(

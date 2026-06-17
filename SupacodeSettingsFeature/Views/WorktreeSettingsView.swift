@@ -19,42 +19,42 @@ public struct WorktreeSettingsView: View {
     Form {
       Section {
         Toggle(isOn: $store.promptForWorktreeCreation) {
-          Text("Prompt for branch name on creation")
-          Text("Choose the branch name and base ref before creating the worktree.")
+          Text("생성 시 브랜치 이름 프롬프트 표시")
+          Text("워크트리를 생성하기 전에 브랜치 이름과 기준 참조를 선택합니다.")
         }
         Toggle(isOn: $store.fetchOriginBeforeWorktreeCreation) {
-          Text("Fetch remote branch before creating worktree")
-          Text("Runs git fetch to ensure the base branch is up to date.")
+          Text("워크트리 생성 전 원격 브랜치 가져오기")
+          Text("기준 브랜치가 최신인지 확인하기 위해 git fetch를 실행합니다.")
         }
         TextField(
           text: $store.defaultWorktreeBaseDirectoryPath,
           prompt: Text(defaultPath)
         ) {
-          Text("Default directory").monospaced(false)
-          Text("Parent path for new worktrees.").monospaced(false)
+          Text("기본 디렉터리").monospaced(false)
+          Text("새 워크트리의 상위 경로입니다.").monospaced(false)
         }.monospaced()
       } footer: {
-        Text("e.g., `\(examplePath)`")
+        Text("예: `\(examplePath)`")
       }
       Section {
         Toggle(isOn: $store.copyIgnoredOnWorktreeCreate) {
-          Text("Copy ignored files to new worktrees")
-          Text("Copies gitignored files from the main worktree.")
+          Text("새 워크트리에 무시된 파일 복사")
+          Text("메인 워크트리에서 gitignore된 파일을 복사합니다.")
         }
         Toggle(isOn: $store.copyUntrackedOnWorktreeCreate) {
-          Text("Copy untracked files to new worktrees")
-          Text("Copies untracked files from the main worktree.")
+          Text("새 워크트리에 추적되지 않는 파일 복사")
+          Text("메인 워크트리에서 추적되지 않는 파일을 복사합니다.")
         }
       }
-      Section("Clean-up") {
+      Section("정리") {
         Picker(
-          "Auto-delete archived worktrees",
+          "보관된 워크트리 자동 삭제",
           selection: Binding(
             get: { store.autoDeleteArchivedWorktreesAfterDays },
             set: { store.send(.requestAutoDeleteDaysChange($0)) }
           )
         ) {
-          Text("Never").tag(AutoDeletePeriod?.none)
+          Text("안 함").tag(AutoDeletePeriod?.none)
           ForEach(AutoDeletePeriod.allCases, id: \.rawValue) { period in
             Text(period.label).tag(AutoDeletePeriod?.some(period))
           }
@@ -62,9 +62,9 @@ public struct WorktreeSettingsView: View {
       }
       Section {
         Toggle(isOn: $store.deleteBranchOnDeleteWorktree) {
-          Text("Delete local branch with worktree")
-          Text("Removes the local branch along with the worktree. Remote branches must be deleted on GitHub.")
-          Text("Uncommitted changes will be lost.").foregroundStyle(.red)
+          Text("워크트리와 함께 로컬 브랜치 삭제")
+          Text("워크트리와 함께 로컬 브랜치를 제거합니다. 원격 브랜치는 GitHub에서 삭제해야 합니다.")
+          Text("커밋되지 않은 변경 사항은 손실됩니다.").foregroundStyle(.red)
         }
       }
     }
@@ -72,6 +72,6 @@ public struct WorktreeSettingsView: View {
     .padding(.top, -20)
     .padding(.leading, -8)
     .padding(.trailing, -6)
-    .navigationTitle("Worktrees")
+    .navigationTitle("워크트리")
   }
 }

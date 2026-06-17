@@ -14,31 +14,30 @@ public struct NotificationsSettingsView: View {
         Toggle(
           isOn: $store.systemNotificationsEnabled
         ) {
-          Text("System notifications")
+          Text("시스템 알림")
         }
-        .help("Show macOS system notifications")
+        .help("macOS 시스템 알림 표시")
         Toggle(
           isOn: $store.notificationSoundEnabled
         ) {
-          Text("Play notification sound")
+          Text("알림 소리 재생")
           Text(
-            "Ignored when system notifications are enabled, as they play sounds"
-              + " according to your settings."
+            "시스템 알림이 활성화된 경우 설정에 따라 소리가 재생되므로 이 옵션은 무시됩니다."
           )
         }.disabled(store.systemNotificationsEnabled)
       }
-      Section("Worktrees") {
+      Section("워크트리") {
         Toggle(
           isOn: $store.inAppNotificationsEnabled
         ) {
-          Text("Notification badge")
-          Text("Display an orange dot next to worktrees with unread notifications.")
+          Text("알림 배지")
+          Text("읽지 않은 알림이 있는 워크트리 옆에 주황색 점을 표시합니다.")
         }
         Toggle(
           isOn: $store.moveNotifiedWorktreeToTop
         ) {
-          Text("Prioritize unread worktrees")
-          Text("Worktrees with unread notifications will be shown first in the list.")
+          Text("읽지 않은 워크트리 우선 정렬")
+          Text("읽지 않은 알림이 있는 워크트리가 목록 상단에 먼저 표시됩니다.")
         }
       }
     }
@@ -47,6 +46,6 @@ public struct NotificationsSettingsView: View {
     .padding(.leading, -8)
     .padding(.trailing, -6)
 
-    .navigationTitle("Notifications")
+    .navigationTitle("알림")
   }
 }

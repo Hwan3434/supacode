@@ -73,14 +73,14 @@ struct KeyboardShortcutsSettingsView: View {
     let warnings = warningsByID
     let terminalDisplays = ghosttyShortcuts.reservedDisplayStrings
     Table(of: ShortcutTableItem.self) {
-      TableColumn("Name") { item in
+      TableColumn("이름") { item in
         NameCell(item: item, overrides: store.shortcutOverrides)
       }
-      TableColumn("Hotkey") { item in
+      TableColumn("단축키") { item in
         HotkeyCell(item: item, store: store, warning: warnings, terminalReservedDisplays: terminalDisplays)
       }
       .width(min: 90, ideal: 120, max: 200)
-      TableColumn("Enabled") { item in
+      TableColumn("활성화됨") { item in
         EnabledCell(item: item, store: store)
       }
       .width(min: 60, max: 90)
@@ -109,24 +109,24 @@ struct KeyboardShortcutsSettingsView: View {
     }
     .alternatingRowBackgrounds()
     .padding(.leading, -6)
-    .searchable(text: $searchText, placement: .toolbar, prompt: "Search...")
-    .navigationTitle("Shortcuts")
+    .searchable(text: $searchText, placement: .toolbar, prompt: "검색...")
+    .navigationTitle("단축키")
     .toolbar {
       ToolbarItem(placement: .primaryAction) {
         Button {
           showRestoreConfirmation = true
         } label: {
           Image(systemName: "arrow.counterclockwise")
-            .accessibilityLabel("Restore Defaults")
+            .accessibilityLabel("기본값 복원")
         }
-        .help("Restore all shortcuts to their default values.")
+        .help("모든 단축키를 기본값으로 복원합니다.")
         .disabled(!hasAnyOverrides)
         .confirmationDialog(
-          "Restore all keyboard shortcuts to their defaults?",
+          "모든 키보드 단축키를 기본값으로 복원하시겠습니까?",
           isPresented: $showRestoreConfirmation,
           titleVisibility: .visible
         ) {
-          Button("Restore Defaults", role: .destructive) {
+          Button("기본값 복원", role: .destructive) {
             store.send(.resetAllShortcuts)
           }
         }

@@ -326,16 +326,16 @@ public enum AppShortcuts {
     keyEquivalent: .rightArrow, ghosttyKeyName: "arrow_right", modifiers: [.command, .control]
   )
 
-  public static let selectWorktree1 = AppShortcut(id: .selectWorktree(1), key: "1", modifiers: [.control])
-  public static let selectWorktree2 = AppShortcut(id: .selectWorktree(2), key: "2", modifiers: [.control])
-  public static let selectWorktree3 = AppShortcut(id: .selectWorktree(3), key: "3", modifiers: [.control])
-  public static let selectWorktree4 = AppShortcut(id: .selectWorktree(4), key: "4", modifiers: [.control])
-  public static let selectWorktree5 = AppShortcut(id: .selectWorktree(5), key: "5", modifiers: [.control])
-  public static let selectWorktree6 = AppShortcut(id: .selectWorktree(6), key: "6", modifiers: [.control])
-  public static let selectWorktree7 = AppShortcut(id: .selectWorktree(7), key: "7", modifiers: [.control])
-  public static let selectWorktree8 = AppShortcut(id: .selectWorktree(8), key: "8", modifiers: [.control])
-  public static let selectWorktree9 = AppShortcut(id: .selectWorktree(9), key: "9", modifiers: [.control])
-  public static let selectWorktree0 = AppShortcut(id: .selectWorktree(0), key: "0", modifiers: [.control])
+  public static let selectWorktree1 = AppShortcut(id: .selectWorktree(1), key: "1", modifiers: [.command])
+  public static let selectWorktree2 = AppShortcut(id: .selectWorktree(2), key: "2", modifiers: [.command])
+  public static let selectWorktree3 = AppShortcut(id: .selectWorktree(3), key: "3", modifiers: [.command])
+  public static let selectWorktree4 = AppShortcut(id: .selectWorktree(4), key: "4", modifiers: [.command])
+  public static let selectWorktree5 = AppShortcut(id: .selectWorktree(5), key: "5", modifiers: [.command])
+  public static let selectWorktree6 = AppShortcut(id: .selectWorktree(6), key: "6", modifiers: [.command])
+  public static let selectWorktree7 = AppShortcut(id: .selectWorktree(7), key: "7", modifiers: [.command])
+  public static let selectWorktree8 = AppShortcut(id: .selectWorktree(8), key: "8", modifiers: [.command])
+  public static let selectWorktree9 = AppShortcut(id: .selectWorktree(9), key: "9", modifiers: [.command])
+  public static let selectWorktree0 = AppShortcut(id: .selectWorktree(0), key: "0", modifiers: [.command])
 
   public static let openWorktree = AppShortcut(id: .openWorktree, key: "o", modifiers: .command)
   public static let revealInFinder = AppShortcut(id: .revealInFinder, key: "r", modifiers: [.command, .option])
@@ -407,8 +407,8 @@ public enum AppShortcuts {
 
   public static let tabSelectionGhosttyKeybindArguments: [String] = tabSelectionBindings.flatMap { binding in
     [
-      "--keybind=ctrl+\(binding.unicode)=goto_tab:\(binding.tabIndex)",
-      "--keybind=ctrl+\(binding.physical)=goto_tab:\(binding.tabIndex)",
+      "--keybind=super+\(binding.unicode)=unbind",
+      "--keybind=super+\(binding.physical)=unbind",
     ]
   }
 

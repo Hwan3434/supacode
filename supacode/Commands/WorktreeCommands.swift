@@ -57,105 +57,105 @@ private struct WorktreeMainMenu: Commands {
     let run = AppShortcuts.runScript.effective(from: overrides)
     let stop = AppShortcuts.stopRunScript.effective(from: overrides)
     let jumpToLatestUnread = AppShortcuts.jumpToLatestUnread.effective(from: overrides)
-    CommandMenu("Worktrees") {
-      Button("New Worktree…", systemImage: "plus") {
+    CommandMenu("워크트리") {
+      Button("새 워크트리…", systemImage: "plus") {
         store.send(.repositories(.createRandomWorktree))
       }
       .appKeyboardShortcut(newWt)
-      .help("New Worktree (\(newWt?.display ?? "none"))")
+      .help("새 워크트리 (\(newWt?.display ?? "없음"))")
       .disabled(!snapshot.canCreateWorktree)
       Divider()
-      let openLabel = openActionSelection.map { "Open in \($0.labelTitle)" } ?? "Open"
+      let openLabel = openActionSelection.map { "\($0.labelTitle)에서 열기" } ?? "열기"
       Button(openLabel, systemImage: "arrow.up.right.square") {
         openSelectedWorktreeAction?()
       }
       .appKeyboardShortcut(openWorktree)
-      .help("\(openLabel) (\(openWorktree?.display ?? "none"))")
+      .help("\(openLabel) (\(openWorktree?.display ?? "없음"))")
       .disabled(openSelectedWorktreeAction?.isEnabled != true)
-      Button("Reveal in Finder", systemImage: "folder") {
+      Button("Finder에서 보기", systemImage: "folder") {
         revealInFinderAction?()
       }
       .appKeyboardShortcut(revealInFinder)
-      .help("Reveal in Finder (\(revealInFinder?.display ?? "none"))")
+      .help("Finder에서 보기 (\(revealInFinder?.display ?? "없음"))")
       .disabled(revealInFinderAction?.isEnabled != true)
-      Button("Open Pull Request", systemImage: "arrow.up.forward") {
+      Button("Pull Request 열기", systemImage: "arrow.up.forward") {
         if let url = snapshot.selectedPullRequestURL {
           NSWorkspace.shared.open(url)
         }
       }
       .appKeyboardShortcut(openPR)
-      .help("Open Pull Request (\(openPR?.display ?? "none"))")
+      .help("Pull Request 열기 (\(openPR?.display ?? "없음"))")
       .disabled(snapshot.selectedPullRequestURL == nil || !snapshot.githubIntegrationEnabled)
       Divider()
-      Button("Refresh Worktrees", systemImage: "arrow.clockwise") {
+      Button("워크트리 새로고침", systemImage: "arrow.clockwise") {
         store.send(.repositories(.refreshWorktrees))
       }
       .appKeyboardShortcut(refresh)
-      .help("Refresh (\(refresh?.display ?? "none"))")
+      .help("새로고침 (\(refresh?.display ?? "없음"))")
       .disabled(!snapshot.isInitialLoadComplete)
-      Button("Archived Worktrees", systemImage: "archivebox") {
+      Button("보관된 워크트리", systemImage: "archivebox") {
         store.send(.repositories(.selectArchivedWorktrees))
       }
       .appKeyboardShortcut(archived)
-      .help("Archived Worktrees (\(archived?.display ?? "none"))")
+      .help("보관된 워크트리 (\(archived?.display ?? "없음"))")
       .disabled(!snapshot.isInitialLoadComplete)
       Divider()
-      Button("Archive Worktree…", systemImage: "archivebox") {
+      Button("워크트리 보관…", systemImage: "archivebox") {
         archiveWorktreeAction?()
       }
       .appKeyboardShortcut(archive)
-      .help("Archive Worktree (\(archive?.display ?? "none"))")
+      .help("워크트리 보관 (\(archive?.display ?? "없음"))")
       .disabled(archiveWorktreeAction?.isEnabled != true)
-      Button("Delete Worktree…", systemImage: "trash") {
+      Button("워크트리 삭제…", systemImage: "trash") {
         deleteWorktreeAction?()
       }
       .appKeyboardShortcut(deleteWt)
-      .help("Delete Worktree (\(deleteWt?.display ?? "none"))")
+      .help("워크트리 삭제 (\(deleteWt?.display ?? "없음"))")
       .disabled(deleteWorktreeAction?.isEnabled != true)
       Divider()
-      Button("Run Script", systemImage: ScriptKind.run.defaultSystemImage) {
+      Button("스크립트 실행", systemImage: ScriptKind.run.defaultSystemImage) {
         runScriptAction?()
       }
       .appKeyboardShortcut(run)
-      .help("Run Script (\(run?.display ?? "none"))")
+      .help("스크립트 실행 (\(run?.display ?? "없음"))")
       .disabled(runScriptAction?.isEnabled != true)
-      Button("Stop Script", systemImage: "stop") {
+      Button("스크립트 중지", systemImage: "stop") {
         stopRunScriptAction?()
       }
       .appKeyboardShortcut(stop)
-      .help("Stop Script (\(stop?.display ?? "none"))")
+      .help("스크립트 중지 (\(stop?.display ?? "없음"))")
       .disabled(stopRunScriptAction?.isEnabled != true)
-      Button("Jump to Latest Unread", systemImage: "bell.badge") {
+      Button("가장 최근의 읽지 않은 알림으로 이동", systemImage: "bell.badge") {
         store.send(.jumpToLatestUnread)
       }
       .appKeyboardShortcut(jumpToLatestUnread)
-      .help("Jump to Latest Unread Notification (\(jumpToLatestUnread?.display ?? "none"))")
+      .help("가장 최근의 읽지 않은 알림으로 이동 (\(jumpToLatestUnread?.display ?? "없음"))")
       .disabled(snapshot.notificationIndicatorCount == 0)
       Divider()
       // Always-enabled; the reducer beeps when there's no worktree to move to.
-      Button("Select Next", systemImage: "chevron.down") {
+      Button("다음 선택", systemImage: "chevron.down") {
         store.send(.repositories(.selectNextWorktree))
       }
       .appKeyboardShortcut(selectNext)
-      .help("Select Next (\(selectNext?.display ?? "none"))")
-      Button("Select Previous", systemImage: "chevron.up") {
+      .help("다음 선택 (\(selectNext?.display ?? "없음"))")
+      Button("이전 선택", systemImage: "chevron.up") {
         store.send(.repositories(.selectPreviousWorktree))
       }
       .appKeyboardShortcut(selectPrevious)
-      .help("Select Previous (\(selectPrevious?.display ?? "none"))")
-      Button("Back in Worktree History", systemImage: "chevron.left") {
+      .help("이전 선택 (\(selectPrevious?.display ?? "없음"))")
+      Button("워크트리 기록 뒤로", systemImage: "chevron.left") {
         store.send(.repositories(.worktreeHistoryBack))
       }
       .appKeyboardShortcut(historyBack)
-      .help("Back in Worktree History (\(historyBack?.display ?? "none"))")
+      .help("워크트리 기록 뒤로 (\(historyBack?.display ?? "없음"))")
       .disabled(!snapshot.canNavigateBackward)
-      Button("Forward in Worktree History", systemImage: "chevron.right") {
+      Button("워크트리 기록 앞으로", systemImage: "chevron.right") {
         store.send(.repositories(.worktreeHistoryForward))
       }
       .appKeyboardShortcut(historyForward)
-      .help("Forward in Worktree History (\(historyForward?.display ?? "none"))")
+      .help("워크트리 기록 앞으로 (\(historyForward?.display ?? "없음"))")
       .disabled(!snapshot.canNavigateForward)
-      Menu("Select Worktree") {
+      Menu("워크트리 선택") {
         SelectWorktreeSubmenuItems(store: store, overrides: overrides)
       }
     }
@@ -172,11 +172,11 @@ private struct SelectWorktreeSubmenuItems: View {
   var body: some View {
     ForEach(0..<AppShortcuts.worktreeSelection.count, id: \.self) { index in
       let shortcut = AppShortcuts.worktreeSelection[index].effective(from: overrides)
-      Button("Select Worktree \(index + 1)") {
+      Button("워크트리 \(index + 1) 선택") {
         store.send(.repositories(.selectWorktreeAtHotkeySlot(index)))
       }
       .appKeyboardShortcut(shortcut)
-      .help("Select Worktree \(index + 1) (\(shortcut?.display ?? "no shortcut"))")
+      .help("워크트리 \(index + 1) 선택 (\(shortcut?.display ?? "단축키 없음"))")
     }
   }
 }
@@ -196,16 +196,16 @@ private struct WorktreeFileMenu: Commands {
     let openRepo = AppShortcuts.openRepository.effective(from: overrides)
     let confirm = AppShortcuts.confirmWorktreeAction.effective(from: overrides)
     CommandGroup(replacing: .newItem) {
-      Button("Add Repository or Folder...", systemImage: "folder.badge.plus") {
+      Button("저장소 또는 폴더 추가...", systemImage: "folder.badge.plus") {
         store.send(.repositories(.setOpenPanelPresented(true)))
       }
       .appKeyboardShortcut(openRepo)
-      .help("Add Repository or Folder (\(openRepo?.display ?? "none"))")
-      Button("Confirm Action") {
+      .help("저장소 또는 폴더 추가 (\(openRepo?.display ?? "없음"))")
+      Button("작업 확인") {
         confirmWorktreeAction?()
       }
       .appKeyboardShortcut(confirm)
-      .help("Confirm Action (\(confirm?.display ?? "none"))")
+      .help("작업 확인 (\(confirm?.display ?? "없음"))")
       .disabled(confirmWorktreeAction?.isEnabled != true)
     }
   }

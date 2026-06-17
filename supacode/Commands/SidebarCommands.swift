@@ -71,25 +71,25 @@ struct SidebarCommands: Commands {
     let toggleLeftSidebar = AppShortcuts.toggleLeftSidebar.effective(from: overrides)
     let revealInSidebar = AppShortcuts.revealInSidebar.effective(from: overrides)
     CommandGroup(replacing: .sidebar) {
-      Button("Toggle Left Sidebar", systemImage: "sidebar.leading") {
+      Button("왼쪽 사이드바 토글", systemImage: "sidebar.leading") {
         toggleLeftSidebarAction?()
       }
       .appKeyboardShortcut(toggleLeftSidebar)
-      .help("Toggle Left Sidebar (\(toggleLeftSidebar?.display ?? "none"))")
+      .help("왼쪽 사이드바 토글 (\(toggleLeftSidebar?.display ?? "없음"))")
       .disabled(toggleLeftSidebarAction?.isEnabled != true)
-      Button("Reveal in Sidebar") {
+      Button("사이드바에서 보기") {
         revealInSidebarAction?()
       }
       .appKeyboardShortcut(revealInSidebar)
-      .help("Reveal in Sidebar (\(revealInSidebar?.display ?? "none"))")
+      .help("사이드바에서 보기 (\(revealInSidebar?.display ?? "없음"))")
       .disabled(revealInSidebarAction?.isEnabled != true)
       Section {
-        Menu("Group Relevant Sidebar Rows") {
-          Toggle("Group Pinned Rows", isOn: groupPinnedRowsToggle)
-          Toggle("Group Active Rows", isOn: groupActiveRowsToggle)
+        Menu("관련된 사이드바 항목 그룹화") {
+          Toggle("고정된 항목 그룹화", isOn: groupPinnedRowsToggle)
+          Toggle("활성화된 항목 그룹화", isOn: groupActiveRowsToggle)
         }
-        Toggle("Nest Worktrees by Branch", isOn: nestWorktreesToggle)
-        Toggle("Hide Worktree Name on Match", isOn: Binding($hideSubtitleOnMatch))
+        Toggle("브랜치별로 워크트리 중첩", isOn: nestWorktreesToggle)
+        Toggle("일치할 때 워크트리 이름 숨기기", isOn: Binding($hideSubtitleOnMatch))
       }
     }
   }

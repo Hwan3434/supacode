@@ -13,7 +13,7 @@ struct TerminalCommands: Commands {
   var body: some Commands {
     CommandGroup(after: .newItem) {
       Divider()
-      Button("New Terminal Tab", systemImage: "macwindow") {
+      Button("새 터미널 탭", systemImage: "macwindow") {
         newTerminalAction?()
       }
       .ghosttyKeyboardShortcut("new_tab", in: ghosttyShortcuts)
@@ -30,19 +30,19 @@ struct TerminalCommands: Commands {
       }
     }
     CommandGroup(after: .textEditing) {
-      Button("Find...") {
+      Button("찾기...") {
         startSearchAction?()
       }
       .ghosttyKeyboardShortcut("start_search", in: ghosttyShortcuts)
       .disabled(startSearchAction?.isEnabled != true)
 
-      Button("Find Next") {
+      Button("다음 찾기") {
         navigateSearchNextAction?()
       }
       .ghosttyKeyboardShortcut("navigate_search:next", in: ghosttyShortcuts)
       .disabled(navigateSearchNextAction?.isEnabled != true)
 
-      Button("Find Previous") {
+      Button("이전 찾기") {
         navigateSearchPreviousAction?()
       }
       .ghosttyKeyboardShortcut("navigate_search:previous", in: ghosttyShortcuts)
@@ -50,7 +50,7 @@ struct TerminalCommands: Commands {
 
       Divider()
 
-      Button("Hide Find Bar") {
+      Button("찾기 막대 숨기기") {
         endSearchAction?()
       }
       .ghosttyKeyboardShortcut("end_search", in: ghosttyShortcuts)
@@ -58,7 +58,7 @@ struct TerminalCommands: Commands {
 
       Divider()
 
-      Button("Use Selection for Find") {
+      Button("선택 항목으로 찾기") {
         searchSelectionAction?()
       }
       .ghosttyKeyboardShortcut("search_selection", in: ghosttyShortcuts)

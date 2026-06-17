@@ -14,9 +14,9 @@ public struct GlobalScriptsSettingsView: View {
     Group {
       if store.globalScripts.isEmpty {
         ContentUnavailableView(
-          "No Global Scripts",
+          "전역 스크립트 없음",
           systemImage: "terminal",
-          description: Text("Add a script to make it available in every repository's toolbar and command palette.")
+          description: Text("스크립트를 추가하여 모든 저장소의 도구 모음과 커맨드 팔레트에서 사용할 수 있게 하세요.")
         )
       } else {
         scriptsForm
@@ -28,9 +28,9 @@ public struct GlobalScriptsSettingsView: View {
           store.send(.addGlobalScript)
         } label: {
           Image(systemName: "plus")
-            .accessibilityLabel("Add Global Script")
+            .accessibilityLabel("전역 스크립트 추가")
         }
-        .help("Add a new global script.")
+        .help("새 전역 스크립트를 추가합니다.")
       }
     }
     .dismissSystemColorPanelOnDisappear()
@@ -40,25 +40,25 @@ public struct GlobalScriptsSettingsView: View {
     ScrollViewReader { proxy in
       Form {
         Section(
-          footer: Text("Global scripts are available in every repository's toolbar and command palette.")
+          footer: Text("전역 스크립트는 모든 저장소의 도구 모음과 커맨드 팔레트에서 사용할 수 있습니다.")
         ) {}
 
         ForEach($store.globalScripts) { $script in
           Section {
-            TextField("Name", text: $script.name)
-            LabeledContent("Color") {
+            TextField("이름", text: $script.name)
+            LabeledContent("색상") {
               ColorSwatchRow(color: $script.tintColor)
             }
             ScriptCommandEditor(text: $script.command, label: script.displayName)
-            Button("Remove Script…", role: .destructive) {
+            Button("스크립트 제거…", role: .destructive) {
               store.send(.removeGlobalScript(script.id))
             }
             .buttonStyle(.plain)
             .foregroundStyle(.red)
-            .help("Remove this script.")
+            .help("이 스크립트를 제거합니다.")
           } header: {
             Label {
-              Text("\(script.displayName) Script")
+              Text("\(script.displayName) 스크립트")
                 .font(.body)
                 .bold()
             } icon: {

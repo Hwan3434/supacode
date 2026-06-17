@@ -80,24 +80,24 @@ private struct SettingsSidebarView: View {
 
   var body: some View {
     List(selection: $settingsStore.selection.sending(\.setSelection)) {
-      Label("General", systemImage: "gearshape")
+      Label("일반", systemImage: "gearshape")
         .tag(SettingsSection.general)
-      Label("Notifications", systemImage: "bell")
+      Label("알림", systemImage: "bell")
         .tag(SettingsSection.notifications)
-      Label("Worktrees", systemImage: "list.dash")
+      Label("워크트리", systemImage: "list.dash")
         .tag(SettingsSection.worktree)
-      Label("Developer", systemImage: "hammer")
+      Label("개발자", systemImage: "hammer")
         .tag(SettingsSection.developer)
       Label("GitHub", image: "github-mark")
         .tag(SettingsSection.github)
-      Label("Shortcuts", systemImage: "keyboard")
+      Label("단축키", systemImage: "keyboard")
         .tag(SettingsSection.shortcuts)
-      Label("Global Scripts", systemImage: "terminal")
+      Label("전역 스크립트", systemImage: "terminal")
         .tag(SettingsSection.scripts)
-      Label("Updates", systemImage: "arrow.down.circle")
+      Label("업데이트", systemImage: "arrow.down.circle")
         .tag(SettingsSection.updates)
 
-      Section("Repositories") {
+      Section("저장소") {
         ForEach(settingsStore.repositorySummaries, id: \.id) { repository in
           if repository.isGitRepository {
             let isExpanded = Binding(
@@ -111,9 +111,9 @@ private struct SettingsSidebarView: View {
               }
             )
             DisclosureGroup(isExpanded: isExpanded) {
-              Label("General", systemImage: "gearshape")
+              Label("일반", systemImage: "gearshape")
                 .tag(SettingsSection.repository(repository.id))
-              Label("Scripts", systemImage: "terminal")
+              Label("스크립트", systemImage: "terminal")
                 .tag(SettingsSection.repositoryScripts(repository.id))
             } label: {
               RepositoryDisclosureLabel(
@@ -169,7 +169,7 @@ private struct SettingsDetailView: View {
       GithubSettingsView(store: settingsStore)
     case .scripts:
       GlobalScriptsSettingsView(store: settingsStore)
-        .navigationTitle("Global Scripts")
+        .navigationTitle("전역 스크립트")
     case .repository:
       if let repository = selectedRepositorySummary {
         if let repositorySettingsStore = settingsStore.scope(
@@ -186,10 +186,10 @@ private struct SettingsDetailView: View {
             .navigationTitle(repository.name)
         }
       } else {
-        Text("Repository not found.")
+        Text("저장소를 찾을 수 없습니다.")
           .foregroundStyle(.secondary)
           .frame(maxWidth: .infinity, alignment: .leading)
-          .navigationTitle("Repositories")
+          .navigationTitle("저장소")
       }
     case .repositoryScripts:
       if let repository = selectedRepositorySummary {
@@ -200,19 +200,19 @@ private struct SettingsDetailView: View {
           RepositoryScriptsSettingsView(store: repositorySettingsStore)
             .id("\(repository.id)-scripts")
             // Em dash is the deliberate visual separator for the settings nav title.
-            .navigationTitle("\(repository.name) — Scripts")
+            .navigationTitle("\(repository.name) — 스크립트")
         } else {
           ProgressView()
             .controlSize(.small)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             // Em dash is the deliberate visual separator for the settings nav title.
-            .navigationTitle("\(repository.name) — Scripts")
+            .navigationTitle("\(repository.name) — 스크립트")
         }
       } else {
-        Text("Repository not found.")
+        Text("저장소를 찾을 수 없습니다.")
           .foregroundStyle(.secondary)
           .frame(maxWidth: .infinity, alignment: .leading)
-          .navigationTitle("Scripts")
+          .navigationTitle("스크립트")
       }
     }
   }
