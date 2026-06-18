@@ -45,7 +45,6 @@ enum Deeplink: Equatable, Sendable {
     case developer
     case shortcuts
     case scripts
-    case updates
     case github
   }
 }

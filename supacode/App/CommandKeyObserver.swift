@@ -19,31 +19,8 @@ final class CommandKeyObserver {
   }
 
   private func configureObservers() {
-    monitor = NSEvent.addLocalMonitorForEvents(matching: .flagsChanged) { [weak self] event in
-      MainActor.assumeIsolated {
-        self?.handleCommandKeyChange(isDown: Self.shouldShowShortcuts(for: event.modifierFlags))
-      }
-      return event
-    }
-    let center = NotificationCenter.default
-    didBecomeActiveObserver = center.addObserver(
-      forName: NSApplication.didBecomeActiveNotification,
-      object: nil,
-      queue: .main
-    ) { [weak self] _ in
-      MainActor.assumeIsolated {
-        self?.handleCommandKeyChange(isDown: Self.shouldShowShortcuts(for: NSEvent.modifierFlags))
-      }
-    }
-    didResignActiveObserver = center.addObserver(
-      forName: NSApplication.didResignActiveNotification,
-      object: nil,
-      queue: .main
-    ) { [weak self] _ in
-      MainActor.assumeIsolated {
-        self?.handleCommandKeyChange(isDown: false)
-      }
-    }
+    // Disabled to save performance, as requested by the user.
+    // The event monitor was causing unnecessary overhead.
   }
 
   nonisolated static func shouldShowShortcuts(for modifierFlags: NSEvent.ModifierFlags) -> Bool {

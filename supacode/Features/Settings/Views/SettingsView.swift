@@ -94,8 +94,6 @@ private struct SettingsSidebarView: View {
         .tag(SettingsSection.shortcuts)
       Label("전역 스크립트", systemImage: "terminal")
         .tag(SettingsSection.scripts)
-      Label("업데이트", systemImage: "arrow.down.circle")
-        .tag(SettingsSection.updates)
 
       Section("저장소") {
         ForEach(settingsStore.repositorySummaries, id: \.id) { repository in
@@ -149,7 +147,6 @@ private struct SettingsDetailView: View {
   let selection: SettingsSection
   let selectedRepositorySummary: SettingsRepositorySummary?
   @Bindable var settingsStore: StoreOf<SettingsFeature>
-  let updatesStore: StoreOf<UpdatesFeature>
 
   var body: some View {
     switch selection {
@@ -163,8 +160,6 @@ private struct SettingsDetailView: View {
       DeveloperSettingsView(store: settingsStore)
     case .shortcuts:
       KeyboardShortcutsSettingsView(store: settingsStore)
-    case .updates:
-      UpdatesSettingsView(settingsStore: settingsStore, updatesStore: updatesStore)
     case .github:
       GithubSettingsView(store: settingsStore)
     case .scripts:
@@ -229,7 +224,6 @@ struct SettingsView: View {
   }
 
   var body: some View {
-    let updatesStore = store.scope(state: \.updates, action: \.updates)
     let selection = settingsStore.selection ?? .general
     let selectedRepositorySummary: SettingsRepositorySummary? = {
       guard let repositoryID = selection.repositoryID else {
@@ -251,8 +245,7 @@ struct SettingsView: View {
       SettingsDetailView(
         selection: selection,
         selectedRepositorySummary: selectedRepositorySummary,
-        settingsStore: settingsStore,
-        updatesStore: updatesStore
+        settingsStore: settingsStore
       )
     }
     .toolbar {
