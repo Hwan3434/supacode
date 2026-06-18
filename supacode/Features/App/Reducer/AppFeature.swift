@@ -2081,7 +2081,6 @@ struct AppFeature {
       case .developer: .developer
       case .shortcuts: .shortcuts
       case .scripts: .scripts
-      case .updates: .updates
       case .github: .github
       }
     return .send(.settings(.setSelection(settingsSection)))
