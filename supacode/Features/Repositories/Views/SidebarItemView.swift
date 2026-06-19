@@ -463,7 +463,7 @@ private struct TrailingView: View {
     let agents = store.agents
     let hasAwaitingAgent = agents.contains(where: { $0.activity == .awaitingInput })
     let scriptColors = store.runningScripts.map(\.tint)
-    let effectiveScriptColors = store.isTaskRunning && scriptColors.isEmpty ? [.blue] : scriptColors
+    let effectiveScriptColors = scriptColors
     let showsNotificationIndicator = store.hasUnseenNotifications
     let notifications = Array(store.notifications)
     let added = store.addedLines ?? 0
