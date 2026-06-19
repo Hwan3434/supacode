@@ -10,8 +10,6 @@ struct AgentBadgeView: View {
   let size: CGFloat
   let awaitingInput: Bool
   @Environment(\.pixelLength) private var pixelLength
-  @Environment(\.colorScheme) private var colorScheme
-
   init(agent: SkillAgent, size: CGFloat = 14, awaitingInput: Bool = false) {
     self.agent = agent
     self.size = size
@@ -19,22 +17,15 @@ struct AgentBadgeView: View {
   }
 
   var body: some View {
-    // Read `awaitingInput` at body top so SwiftUI's diffing picks up the flag the moment it flips.
-    let resolvedScheme: ColorScheme =
-      awaitingInput
-      ? (colorScheme == .dark ? .light : .dark)
-      : colorScheme
     Image(agent.assetName)
       .resizable()
       .aspectRatio(contentMode: .fit)
       .accessibilityLabel(agent.displayName)
       .padding(size * 0.18)
       .frame(width: size, height: size)
-      .foregroundStyle(.primary)
+      .foregroundStyle(.white)
       .background(.bar.shadow(Self.dropShadow), in: .circle)
       .overlay(Circle().strokeBorder(.separator, lineWidth: pixelLength))
-      .environment(\.colorScheme, resolvedScheme)
-      .animation(.smooth, value: awaitingInput)
   }
 
   private static let dropShadow: ShadowStyle = .drop(
