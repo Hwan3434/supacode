@@ -12,7 +12,7 @@ struct AgentBadgeView: View {
   let showsAwaitingIndicator: Bool
   @Environment(\.pixelLength) private var pixelLength
 
-  @State private var isPulsing = false
+  @State private var isSpinning = false
 
   init(
     agent: SkillAgent,
@@ -39,21 +39,29 @@ struct AgentBadgeView: View {
         .overlay(Circle().strokeBorder(.separator, lineWidth: pixelLength))
         .overlay {
           if activity == .busy || (activity == .awaitingInput && showsAwaitingIndicator) {
-            let pulseColor = activity == .awaitingInput ? Color.orange : Color.accentColor
+            let spinnerColor = activity == .awaitingInput ? Color.orange : Color.accentColor
             Circle()
-              .stroke(pulseColor, lineWidth: 1.5)
-              .scaleEffect(isPulsing ? 1.4 : 1.0)
-              .opacity(isPulsing ? 0 : 0.6)
+              .stroke(
+                AngularGradient(
+                  gradient: Gradient(colors: [spinnerColor.opacity(0.1), spinnerColor]),
+                  center: .center,
+                  startAngle: .degrees(0),
+                  endAngle: .degrees(360)
+                ),
+                style: StrokeStyle(lineWidth: 1.5, lineCap: .round)
+              )
+              .padding(-1.5)
+              .rotationEffect(.degrees(isSpinning ? 360 : 0))
               .animation(
-                .easeOut(duration: 1.2).repeatForever(autoreverses: false),
-                value: isPulsing
+                .linear(duration: 1.0).repeatForever(autoreverses: false),
+                value: isSpinning
               )
               .onAppear {
                 DispatchQueue.main.async {
-                  isPulsing = true
+                  isSpinning = true
                 }
               }
-              .onDisappear { isPulsing = false }
+              .onDisappear { isSpinning = false }
           }
         }
     }
