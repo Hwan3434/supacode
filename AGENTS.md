@@ -183,3 +183,12 @@ Reducer ← .repositories(.worktreeInfoEvent(Event)) ← AsyncStream<Event>
 
 - `ThirdParty/ghostty` (`https://github.com/ghostty-org/ghostty`): Source dependency used to build `Frameworks/GhosttyKit.xcframework` and terminal resources. The pin tracks upstream; local changes live as out-of-tree patches in `patches/*.patch`, applied to the working tree by `scripts/build-ghostty.sh` before `zig build` and reverted on exit (the pin is never moved, no fork). On a ghostty bump a patch may stop applying and the build fails loudly: refresh the patch, and prefer upstreaming it to retire the carry cost. Run one ghostty build at a time (the apply/revert shares the submodule working tree).
 - `Resources/git-wt` (`https://github.com/khoi/git-wt.git`): Bundled `wt` CLI used by Supacode Git worktree flows at runtime.
+
+## Personal Fork Maintenance
+- This repository is a customized personal fork (soft fork) of the original Supacode project.
+- **CI / Tuist Cloud**: We do NOT use Tuist Cloud authentication in our GitHub Actions, as we do not have access to the upstream Tuist project. DO NOT attempt to re-enable `tuist auth login` or add a Tuist project link.
+- **Branch Strategy**: 
+  - The `main` branch tracks the upstream repository exactly (no personal changes).
+  - All personal translations, features, and settings should be maintained in the `custom/main` branch.
+  - To update with upstream changes: update `main`, then merge `main` into `custom/main`.
+- **Local Building**: Whenever changes are made to `custom/main`, build and install the app locally using `make install-dev-build` instead of relying on GitHub Actions.
