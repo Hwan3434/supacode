@@ -79,6 +79,7 @@ struct SidebarItemView: View {
     .overlay(alignment: .bottom) {
       if store.isTaskRunning {
         TaskProgressLineOverlay()
+          .padding(.horizontal, 8)
       }
     }
     .listRowInsets(.leading, CGFloat(nestDepth) * SidebarNestLayout.indentStep)
@@ -661,6 +662,7 @@ private struct TaskProgressLineOverlay: View {
         }
     }
     .frame(height: 2)
+    .clipped()
   }
 }
 
