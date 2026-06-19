@@ -6,6 +6,7 @@ public enum SettingsSection: Hashable {
   case worktree
   case developer
   case shortcuts
+  case updates
   case github
   case scripts
   case repository(String)

@@ -147,6 +147,7 @@ private struct SettingsDetailView: View {
   let selection: SettingsSection
   let selectedRepositorySummary: SettingsRepositorySummary?
   @Bindable var settingsStore: StoreOf<SettingsFeature>
+  let updatesStore: StoreOf<UpdatesFeature>
 
   var body: some View {
     switch selection {
@@ -160,6 +161,8 @@ private struct SettingsDetailView: View {
       DeveloperSettingsView(store: settingsStore)
     case .shortcuts:
       KeyboardShortcutsSettingsView(store: settingsStore)
+    case .updates:
+      UpdatesSettingsView(settingsStore: settingsStore, updatesStore: updatesStore)
     case .github:
       GithubSettingsView(store: settingsStore)
     case .scripts:
@@ -246,6 +249,7 @@ struct SettingsView: View {
         selection: selection,
         selectedRepositorySummary: selectedRepositorySummary,
         settingsStore: settingsStore,
+        updatesStore: store.scope(state: \.updates, action: \.updates)
       )
     }
     .toolbar {
