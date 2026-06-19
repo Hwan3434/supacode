@@ -76,6 +76,13 @@ struct SidebarItemView: View {
       )
     }
     .labelStyle(.verticallyCentered)
+    .overlay {
+      if store.isTaskRunning {
+        RoundedRectangle(cornerRadius: 6)
+          .stroke(Color.accentColor, lineWidth: 2)
+          .padding(-4)
+      }
+    }
     .listRowInsets(.leading, CGFloat(nestDepth) * SidebarNestLayout.indentStep)
     .listRowInsets(.trailing, 4)
     .listRowInsets(.vertical, 6)
@@ -468,7 +475,7 @@ private struct TrailingView: View {
     let added = store.addedLines ?? 0
     let removed = store.removedLines ?? 0
     let hasStats = added + removed > 0
-    let shouldShowNotificationDot = showsNotificationIndicator && !hasAwaitingAgent
+    let shouldShowNotificationDot = showsNotificationIndicator && agents.isEmpty
     let hasStatus = !scriptColors.isEmpty || shouldShowNotificationDot
 
     // Cross-fade via opacity so flipping ⌘ doesn't snap the row.
@@ -483,13 +490,13 @@ private struct TrailingView: View {
             .equatable()
         }
         if !agents.isEmpty {
-          if showsNotificationIndicator && hasAwaitingAgent {
+          if showsNotificationIndicator {
             NotificationPopoverButton(notifications: notifications) {
               RunningAgentsBadgeContent(agents: agents, showsAwaitingIndicator: true)
                 .equatable()
             }
           } else {
-            RunningAgentsBadgeContent(agents: agents, showsAwaitingIndicator: showsNotificationIndicator)
+            RunningAgentsBadgeContent(agents: agents, showsAwaitingIndicator: hasAwaitingAgent)
               .equatable()
           }
         }
