@@ -10,7 +10,7 @@ struct WorktreeCreationPromptView: View {
   var body: some View {
     Form {
       Section {
-        TextField("Branch name", text: $store.branchName)
+        TextField("브랜치 이름", text: $store.branchName)
           .focused($isBranchFieldFocused)
           .onSubmit {
             store.send(.createButtonTapped)
@@ -18,8 +18,8 @@ struct WorktreeCreationPromptView: View {
       } header: {
         // `NavigationStack` with title and subtitle is bugged inside
         // sheets in macOS 26.*, and this is a nice enough fallback.
-        Text("New Worktree")
-        Text("Create a branch in `\(store.repositoryName)`.")
+        Text("새 워크트리")
+        Text("`\(store.repositoryName)`에 브랜치를 생성합니다.")
       } footer: {
         WorktreeCreationFooter(store: store)
       }
@@ -29,9 +29,9 @@ struct WorktreeCreationPromptView: View {
         WorktreeBaseRefField(store: store)
 
         Toggle(isOn: $store.fetchOrigin) {
-          Text("Fetch remote branch")
+          Text("원격 브랜치 가져오기")
           Text(
-            "Runs `git fetch` to ensure the base branch is up to date before creating the worktree."
+            "워크트리를 생성하기 전에 기준 브랜치가 최신인지 확인하기 위해 `git fetch`를 실행합니다."
           )
         }
         .disabled(store.isSelectedBaseRefLocal)
@@ -50,16 +50,16 @@ struct WorktreeCreationPromptView: View {
             .controlSize(.small)
         }
         Spacer()
-        Button("Cancel") {
+        Button("취소") {
           store.send(.cancelButtonTapped)
         }
         .keyboardShortcut(.cancelAction)
-        .help("Cancel (Esc)")
-        Button("Create") {
+        .help("취소 (Esc)")
+        Button("생성") {
           store.send(.createButtonTapped)
         }
         .keyboardShortcut(.defaultAction)
-        .help("Create (↩)")
+        .help("생성 (↩)")
         .disabled(store.isValidating)
       }
       .padding(.horizontal, 20)
@@ -75,9 +75,9 @@ private struct WorktreeAppearanceSection: View {
   @Bindable var store: StoreOf<WorktreeCreationPromptFeature>
 
   var body: some View {
-    Section("Appearance", isExpanded: $store.showAppearanceOptions) {
-      TextField("Title", text: $store.title, prompt: Text(store.worktreeNamePlaceholder))
-      LabeledContent("Color") {
+    Section("모양", isExpanded: $store.showAppearanceOptions) {
+      TextField("제목", text: $store.title, prompt: Text(store.worktreeNamePlaceholder))
+      LabeledContent("색상") {
         ColorSwatchRow(color: $store.color)
       }
     }
@@ -88,11 +88,11 @@ private struct WorktreeOptionsSection: View {
   @Bindable var store: StoreOf<WorktreeCreationPromptFeature>
 
   var body: some View {
-    Section("Advanced", isExpanded: $store.showAdvancedOptions) {
+    Section("고급", isExpanded: $store.showAdvancedOptions) {
       // Title-string fields so tapping the label focuses the field, matching
       // the branch-name field above.
-      TextField("Worktree name", text: $store.worktreeNameOverride, prompt: Text(store.worktreeNamePlaceholder))
-      TextField("Parent folder", text: $store.worktreePathOverride, prompt: Text(store.defaultWorktreeBaseDirectory))
+      TextField("워크트리 이름", text: $store.worktreeNameOverride, prompt: Text(store.worktreeNamePlaceholder))
+      TextField("상위 폴더", text: $store.worktreePathOverride, prompt: Text(store.defaultWorktreeBaseDirectory))
     }
   }
 }
@@ -132,8 +132,8 @@ private struct WorktreeBaseRefField: View {
         }
       }
     } label: {
-      Text("Base ref")
-      Text("The branch or ref the new worktree will be created from.")
+      Text("기준 브랜치")
+      Text("새 워크트리를 생성할 기준 브랜치 또는 참조입니다.")
     }
   }
 }
@@ -146,15 +146,15 @@ private struct WorktreeBaseRefMenuContent: View {
       store: store,
       ref: nil,
       label: store.automaticBaseRef.isEmpty
-        ? Text("Auto")
-        : Text(store.automaticBaseRef) + Text(" Auto").foregroundStyle(.secondary)
+        ? Text("자동")
+        : Text(store.automaticBaseRef) + Text(" 자동").foregroundStyle(.secondary)
     )
     if let defaultBranch = store.defaultBranch {
       // Tagged "Local" to distinguish it from the remote-tracking Auto ref above.
       WorktreeBaseRefMenuItem(
         store: store,
         ref: defaultBranch,
-        label: Text(defaultBranch) + Text(" Local").foregroundStyle(.secondary)
+        label: Text(defaultBranch) + Text(" 로컬").foregroundStyle(.secondary)
       )
     }
 
@@ -162,7 +162,7 @@ private struct WorktreeBaseRefMenuContent: View {
 
     if let branchMenu = store.branchMenu {
       if !branchMenu.localBranches.isEmpty {
-        Menu("Local") {
+        Menu("로컬") {
           ForEach(branchMenu.localBranches) { node in
             WorktreeBranchNodeMenu(store: store, node: node)
           }
@@ -172,7 +172,7 @@ private struct WorktreeBaseRefMenuContent: View {
         WorktreeRemoteBranchMenu(store: store, remote: remote)
       }
     } else {
-      Text("Loading branches…")
+      Text("브랜치 불러오는 중…")
     }
   }
 }
@@ -187,7 +187,7 @@ private struct WorktreeRemoteBranchMenu: View {
         WorktreeBranchNodeMenu(store: store, node: node)
       }
     } label: {
-      Text(remote.name) + Text(" Remote").foregroundStyle(.secondary)
+      Text(remote.name) + Text(" 원격").foregroundStyle(.secondary)
     }
   }
 }
