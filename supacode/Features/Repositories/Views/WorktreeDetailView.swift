@@ -1068,7 +1068,15 @@ private struct ScriptMenu: View {
     } icon: {
       Image(systemName: icon)
         .accessibilityHidden(true)
-    }.labelStyle(.titleAndIcon)
+    }
+    .labelStyle(.titleAndIcon)
+    .overlay {
+      if hasRunning {
+        RoundedRectangle(cornerRadius: 6, style: .continuous)
+          .stroke(Color(red: 0.200, green: 0.824, blue: 0.875), lineWidth: 2)
+          .padding(-5)
+      }
+    }
   }
 
   private func primaryHelpText(hasRunning: Bool) -> String {

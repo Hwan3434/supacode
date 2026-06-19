@@ -485,11 +485,11 @@ private struct TrailingView: View {
         if !agents.isEmpty {
           if showsNotificationIndicator && hasAwaitingAgent {
             NotificationPopoverButton(notifications: notifications) {
-              RunningAgentsBadgeContent(agents: agents)
+              RunningAgentsBadgeContent(agents: agents, showsAwaitingIndicator: true)
                 .equatable()
             }
           } else {
-            RunningAgentsBadgeContent(agents: agents)
+            RunningAgentsBadgeContent(agents: agents, showsAwaitingIndicator: showsNotificationIndicator)
               .equatable()
           }
         }
@@ -529,9 +529,15 @@ private struct PullRequestBadgeContent: View, Equatable {
 
 private struct RunningAgentsBadgeContent: View, Equatable {
   let agents: [AgentPresenceFeature.AgentInstance]
+  let showsAwaitingIndicator: Bool
+
+  init(agents: [AgentPresenceFeature.AgentInstance], showsAwaitingIndicator: Bool = true) {
+    self.agents = agents
+    self.showsAwaitingIndicator = showsAwaitingIndicator
+  }
 
   var body: some View {
-    AgentAvatarGroupView(instances: agents, size: 16)
+    AgentAvatarGroupView(instances: agents, size: 16, showsAwaitingIndicator: showsAwaitingIndicator)
   }
 }
 

@@ -9,14 +9,21 @@ struct AgentBadgeView: View {
   let agent: SkillAgent
   let size: CGFloat
   let activity: AgentPresenceFeature.Activity
+  let showsAwaitingIndicator: Bool
   @Environment(\.pixelLength) private var pixelLength
 
   @State private var isPulsing = false
 
-  init(agent: SkillAgent, size: CGFloat = 14, activity: AgentPresenceFeature.Activity = .idle) {
+  init(
+    agent: SkillAgent,
+    size: CGFloat = 14,
+    activity: AgentPresenceFeature.Activity = .idle,
+    showsAwaitingIndicator: Bool = true
+  ) {
     self.agent = agent
     self.size = size
     self.activity = activity
+    self.showsAwaitingIndicator = showsAwaitingIndicator
   }
 
   var body: some View {
@@ -31,9 +38,10 @@ struct AgentBadgeView: View {
         .background(.bar.shadow(Self.dropShadow), in: .circle)
         .overlay(Circle().strokeBorder(.separator, lineWidth: pixelLength))
         .overlay {
-          if activity == .busy {
+          if activity == .busy || (activity == .awaitingInput && showsAwaitingIndicator) {
+            let pulseColor = activity == .awaitingInput ? Color.orange : Color.accentColor
             Circle()
-              .stroke(Color.accentColor, lineWidth: 1.5)
+              .stroke(pulseColor, lineWidth: 1.5)
               .scaleEffect(isPulsing ? 1.4 : 1.0)
               .opacity(isPulsing ? 0 : 0.6)
               .animation(
@@ -48,14 +56,6 @@ struct AgentBadgeView: View {
               .onDisappear { isPulsing = false }
           }
         }
-      
-      if activity == .awaitingInput {
-        Circle()
-          .fill(Color.orange)
-          .frame(width: size * 0.4, height: size * 0.4)
-          .overlay(Circle().stroke(.background, lineWidth: 1))
-          .offset(x: size * 0.1, y: -size * 0.1)
-      }
     }
   }
 

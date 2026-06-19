@@ -16,15 +16,18 @@ struct AgentAvatarGroupView: View {
   let instances: [AgentPresenceFeature.AgentInstance]
   let size: CGFloat
   let maxVisible: Int
+  let showsAwaitingIndicator: Bool
 
   init(
     instances: [AgentPresenceFeature.AgentInstance],
     size: CGFloat = 14,
-    maxVisible: Int = 3
+    maxVisible: Int = 3,
+    showsAwaitingIndicator: Bool = true
   ) {
     self.instances = instances
     self.size = size
     self.maxVisible = maxVisible
+    self.showsAwaitingIndicator = showsAwaitingIndicator
   }
 
   /// Convenience for static lineups (e.g. the sidebar setup card showing
@@ -71,7 +74,12 @@ struct AgentAvatarGroupView: View {
       HStack(spacing: 4) {
         HStack(spacing: -size * 0.35) {
           ForEach(visibleSlots) { slot in
-            AgentBadgeView(agent: slot.agent, size: size, activity: slot.activity)
+            AgentBadgeView(
+              agent: slot.agent,
+              size: size,
+              activity: slot.activity,
+              showsAwaitingIndicator: showsAwaitingIndicator
+            )
               .zIndex(slot.zIndex)
           }
         }
