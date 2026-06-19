@@ -641,28 +641,26 @@ extension EnvironmentValues {
 }
 
 private struct TaskProgressLineOverlay: View {
-  @State private var phase: CGFloat = 0
+  @State private var isAnimating = false
 
   var body: some View {
-    Rectangle()
-      .fill(
-        LinearGradient(
-          stops: [
-            .init(color: .clear, location: 0),
-            .init(color: Color.accentColor, location: 0.5),
-            .init(color: .clear, location: 1)
-          ],
-          startPoint: UnitPoint(x: -1 + phase, y: 0),
-          endPoint: UnitPoint(x: 0 + phase, y: 0)
+    GeometryReader { geo in
+      Rectangle()
+        .fill(
+          LinearGradient(
+            gradient: Gradient(colors: [.clear, Color.accentColor, .clear]),
+            startPoint: .leading,
+            endPoint: .trailing
+          )
         )
-      )
-      .frame(height: 1)
-      .clipped()
-      .animation(.linear(duration: 1.5).repeatForever(autoreverses: false), value: phase)
-      .onAppear {
-        DispatchQueue.main.async {
-          phase = 2.0
+        .frame(width: geo.size.width * 0.5, height: 2)
+        .offset(x: isAnimating ? geo.size.width : -geo.size.width * 0.5)
+        .animation(.linear(duration: 1.5).repeatForever(autoreverses: false), value: isAnimating)
+        .onAppear {
+          isAnimating = true
         }
-      }
+    }
+    .frame(height: 2)
   }
 }
+
