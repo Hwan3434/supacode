@@ -22,7 +22,7 @@ struct AgentAvatarGroupView: View {
     instances: [AgentPresenceFeature.AgentInstance],
     size: CGFloat = 14,
     maxVisible: Int = 3,
-    showsAwaitingIndicator: Bool = true
+    showsAwaitingIndicator: Bool = true,
   ) {
     self.instances = instances
     self.size = size
@@ -36,7 +36,7 @@ struct AgentAvatarGroupView: View {
     self.init(
       instances: agents.map { .init(agent: $0, activity: .idle) },
       size: size,
-      maxVisible: maxVisible
+      maxVisible: maxVisible,
     )
   }
 
@@ -56,7 +56,7 @@ struct AgentAvatarGroupView: View {
         occurrence: occurrence,
         activity: instance.activity,
         // Leftmost on top — stable regardless of `maxVisible`.
-        zIndex: Double(total - index)
+        zIndex: Double(total - index),
       )
     }
   }
@@ -78,9 +78,9 @@ struct AgentAvatarGroupView: View {
               agent: slot.agent,
               size: size,
               activity: slot.activity,
-              showsAwaitingIndicator: showsAwaitingIndicator
+              showsAwaitingIndicator: showsAwaitingIndicator,
             )
-              .zIndex(slot.zIndex)
+            .zIndex(slot.zIndex)
           }
         }
         if overflow > 0 {

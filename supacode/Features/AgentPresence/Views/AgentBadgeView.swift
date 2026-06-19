@@ -19,7 +19,7 @@ struct AgentBadgeView: View {
     agent: SkillAgent,
     size: CGFloat = 14,
     activity: AgentPresenceFeature.Activity = .idle,
-    showsAwaitingIndicator: Bool = true
+    showsAwaitingIndicator: Bool = true,
   ) {
     self.agent = agent
     self.size = size
@@ -46,15 +46,15 @@ struct AgentBadgeView: View {
                   gradient: Gradient(colors: [Color.accentColor.opacity(0.1), Color.accentColor]),
                   center: .center,
                   startAngle: .degrees(0),
-                  endAngle: .degrees(360)
+                  endAngle: .degrees(360),
                 ),
-                style: StrokeStyle(lineWidth: 1.5, lineCap: .round)
+                style: StrokeStyle(lineWidth: 1.5, lineCap: .round),
               )
               .padding(-1.5)
               .rotationEffect(.degrees(isSpinning ? 360 : 0))
               .animation(
                 .linear(duration: 1.0).repeatForever(autoreverses: false),
-                value: isSpinning
+                value: isSpinning,
               )
               .onAppear {
                 DispatchQueue.main.async { isSpinning = true }
@@ -67,7 +67,7 @@ struct AgentBadgeView: View {
               .opacity(isPulsing ? 0 : 0.6)
               .animation(
                 .easeOut(duration: 1.2).repeatForever(autoreverses: false),
-                value: isPulsing
+                value: isPulsing,
               )
               .onAppear {
                 DispatchQueue.main.async { isPulsing = true }
@@ -79,6 +79,6 @@ struct AgentBadgeView: View {
   }
 
   private static let dropShadow: ShadowStyle = .drop(
-    color: Color.black.opacity(0.05), radius: 1, x: 0, y: 1
+    color: Color.black.opacity(0.05), radius: 1, x: 0, y: 1,
   )
 }

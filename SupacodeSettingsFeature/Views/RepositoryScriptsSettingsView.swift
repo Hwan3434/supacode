@@ -25,7 +25,7 @@ public struct RepositoryScriptsSettingsView: View {
             subtitle: "워크트리 생성 후 한 번 실행됩니다.",
             icon: "truck.box.badge.clock",
             iconColor: .blue,
-            footerExample: "pnpm install"
+            footerExample: "pnpm install",
           )
           LifecycleScriptSection(
             text: $store.settings.archiveScript,
@@ -33,7 +33,7 @@ public struct RepositoryScriptsSettingsView: View {
             subtitle: "워크트리를 보관하기 전에 실행됩니다.",
             icon: "archivebox",
             iconColor: .orange,
-            footerExample: "docker compose down"
+            footerExample: "docker compose down",
           )
         }
         LifecycleScriptSection(
@@ -44,7 +44,7 @@ public struct RepositoryScriptsSettingsView: View {
             : "이 폴더를 Supacode에서 제거하기 전에 실행됩니다.",
           icon: "trash",
           iconColor: .red,
-          footerExample: "docker compose down"
+          footerExample: "docker compose down",
         )
 
         // User-defined scripts, each in its own section.

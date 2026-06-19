@@ -28,7 +28,7 @@ public struct WorktreeSettingsView: View {
         }
         TextField(
           text: $store.defaultWorktreeBaseDirectoryPath,
-          prompt: Text(defaultPath)
+          prompt: Text(defaultPath),
         ) {
           Text("기본 디렉터리").monospaced(false)
           Text("새 워크트리의 상위 경로입니다.").monospaced(false)
@@ -51,8 +51,8 @@ public struct WorktreeSettingsView: View {
           "보관된 워크트리 자동 삭제",
           selection: Binding(
             get: { store.autoDeleteArchivedWorktreesAfterDays },
-            set: { store.send(.requestAutoDeleteDaysChange($0)) }
-          )
+            set: { store.send(.requestAutoDeleteDaysChange($0)) },
+          ),
         ) {
           Text("안 함").tag(AutoDeletePeriod?.none)
           ForEach(AutoDeletePeriod.allCases, id: \.rawValue) { period in

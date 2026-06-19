@@ -98,7 +98,7 @@ public nonisolated struct GlobalSettings: Codable, Equatable, Sendable {
     agentPresenceBadgesEnabled: true,
     autoUpdateAgentIntegrationsEnabled: true,
     confirmQuitMode: .auto,
-    terminateSessionsOnQuit: false
+    terminateSessionsOnQuit: false,
   )
 
   public init(
@@ -132,7 +132,7 @@ public nonisolated struct GlobalSettings: Codable, Equatable, Sendable {
     agentPresenceBadgesEnabled: Bool = true,
     autoUpdateAgentIntegrationsEnabled: Bool = true,
     confirmQuitMode: ConfirmQuitMode = .auto,
-    terminateSessionsOnQuit: Bool = false
+    terminateSessionsOnQuit: Bool = false,
   ) {
     self.appearanceMode = appearanceMode
     self.defaultEditorID = defaultEditorID
@@ -222,7 +222,7 @@ public nonisolated struct GlobalSettings: Codable, Equatable, Sendable {
     } else {
       if let legacyBool = try legacy.decodeIfPresent(
         Bool.self,
-        forKey: LegacyCodingKey(stringValue: "automaticallyArchiveMergedWorktrees")!
+        forKey: LegacyCodingKey(stringValue: "automaticallyArchiveMergedWorktrees")!,
       ) {
         mergedWorktreeAction = legacyBool ? .archive : Self.default.mergedWorktreeAction
       } else {
@@ -255,7 +255,7 @@ public nonisolated struct GlobalSettings: Codable, Equatable, Sendable {
     if let policy = try container.decodeIfPresent(AutomatedActionPolicy.self, forKey: .automatedActionPolicy) {
       automatedActionPolicy = policy
     } else if let legacyBool = try legacy.decodeIfPresent(
-      Bool.self, forKey: LegacyCodingKey(stringValue: "allowArbitraryDeeplinkInput")!)
+      Bool.self, forKey: LegacyCodingKey(stringValue: "allowArbitraryDeeplinkInput")!, )
     {
       automatedActionPolicy = legacyBool ? .always : .never
     } else {
@@ -303,7 +303,7 @@ public nonisolated struct GlobalSettings: Codable, Equatable, Sendable {
     {
       confirmQuitMode = mode
     } else if let legacyConfirmBeforeQuit = try legacy.decodeIfPresent(
-      Bool.self, forKey: LegacyCodingKey(stringValue: "confirmBeforeQuit")!)
+      Bool.self, forKey: LegacyCodingKey(stringValue: "confirmBeforeQuit")!, )
     {
       confirmQuitMode = legacyConfirmBeforeQuit ? .always : .never
     } else {

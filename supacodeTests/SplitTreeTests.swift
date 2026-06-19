@@ -147,9 +147,9 @@ struct SplitTreeTests {
         name: "wt-zoom",
         detail: "detail",
         workingDirectory: URL(fileURLWithPath: "/tmp/repo/wt-zoom"),
-        repositoryRootURL: URL(fileURLWithPath: "/tmp/repo")
+        repositoryRootURL: URL(fileURLWithPath: "/tmp/repo"),
       ),
-      splitPreserveZoomOnNavigation: { false }
+      splitPreserveZoomOnNavigation: { false },
     )
     let tabId = state.createTab()!
     let first = state.splitTree(for: tabId).root!.leftmostLeaf()
@@ -213,7 +213,7 @@ struct SplitTreeTests {
     let state = WorktreeTerminalState(
       runtime: GhosttyRuntime(),
       worktree: makeWorktree(),
-      splitPreserveZoomOnNavigation: { preserveZoomOnNavigation }
+      splitPreserveZoomOnNavigation: { preserveZoomOnNavigation },
     )
     let tabId = state.createTab()!
     let first = state.splitTree(for: tabId).root!.leftmostLeaf()
@@ -223,7 +223,7 @@ struct SplitTreeTests {
       state: state,
       tabId: tabId,
       first: first,
-      second: leaves.first { $0.id != first.id }
+      second: leaves.first { $0.id != first.id },
     )
   }
 
@@ -233,7 +233,7 @@ struct SplitTreeTests {
       name: "wt-1",
       detail: "detail",
       workingDirectory: URL(fileURLWithPath: "/tmp/repo/wt-1"),
-      repositoryRootURL: URL(fileURLWithPath: "/tmp/repo")
+      repositoryRootURL: URL(fileURLWithPath: "/tmp/repo"),
     )
   }
 }

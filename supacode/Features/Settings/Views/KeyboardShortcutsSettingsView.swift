@@ -45,9 +45,9 @@ struct KeyboardShortcutsSettingsView: View {
           ShortcutTableItem(
             id: shortcut.displayName,
             kind: .shortcut(shortcut),
-            children: nil
+            children: nil,
           )
-        }
+        },
       )
     }
   }
@@ -96,8 +96,8 @@ struct KeyboardShortcutsSettingsView: View {
               } else {
                 expandedGroups.remove(group.id)
               }
-            }
-          )
+            },
+          ),
         ) {
           if let children = group.children {
             ForEach(children) { child in
@@ -124,7 +124,7 @@ struct KeyboardShortcutsSettingsView: View {
         .confirmationDialog(
           "모든 키보드 단축키를 기본값으로 복원하시겠습니까?",
           isPresented: $showRestoreConfirmation,
-          titleVisibility: .visible
+          titleVisibility: .visible,
         ) {
           Button("기본값 복원", role: .destructive) {
             store.send(.resetAllShortcuts)
@@ -192,7 +192,7 @@ private struct HotkeyCell: View {
             return other.displayName
           }
           return nil
-        }
+        },
       )
     }
   }
@@ -212,7 +212,7 @@ private struct EnabledCell: View {
             for shortcut in group.shortcuts {
               store.send(.toggleShortcutEnabled(id: shortcut.id, enabled: enabled))
             }
-          }
+          },
         ).frame(maxWidth: .infinity, alignment: .center)
       }
     case .shortcut(let shortcut):
@@ -220,8 +220,8 @@ private struct EnabledCell: View {
         "",
         isOn: Binding(
           get: { store.shortcutOverrides[shortcut.id]?.isEnabled ?? true },
-          set: { store.send(.toggleShortcutEnabled(id: shortcut.id, enabled: $0)) }
-        )
+          set: { store.send(.toggleShortcutEnabled(id: shortcut.id, enabled: $0)) },
+        ),
       )
       .frame(maxWidth: .infinity, alignment: .center)
       .toggleStyle(.checkbox)

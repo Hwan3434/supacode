@@ -53,7 +53,7 @@ struct AppFeature {
 
     init(
       repositories: RepositoriesFeature.State = .init(),
-      settings: SettingsFeature.State = .init()
+      settings: SettingsFeature.State = .init(),
     ) {
       self.repositories = repositories
       self.settings = settings
@@ -187,7 +187,7 @@ struct AppFeature {
             let staged = AgentPresenceFeature.stageRestore(fromLayouts: layouts.values)
             await terminalClient.reapOrphanSessions(known)
             await send(.agentPresence(.restoreFromSnapshot(staged: staged)))
-          }
+          },
         )
 
       case .agentPresence(.delegate(.surfacesChanged(let surfaces))):
@@ -204,7 +204,7 @@ struct AppFeature {
               terminalClient.saveLayoutsWithAgents(agentsBySurface)
             }
           }
-          .cancellable(id: CancelID.agentPresencePersist, cancelInFlight: true)
+          .cancellable(id: CancelID.agentPresencePersist, cancelInFlight: true),
         )
 
       case .agentPresence:
@@ -227,7 +227,7 @@ struct AppFeature {
                 await send(.repositories(.refreshWorktrees))
               }
             }
-            .cancellable(id: CancelID.periodicRefresh, cancelInFlight: true)
+            .cancellable(id: CancelID.periodicRefresh, cancelInFlight: true),
           )
         case .background:
           // Snapshot on the way out so a force-quit / crash doesn't drop
@@ -242,7 +242,7 @@ struct AppFeature {
                 terminalClient.saveLayoutsWithAgents(agentsBySurface)
               }
             }
-            .cancellable(id: CancelID.backgroundPersist, cancelInFlight: true)
+            .cancellable(id: CancelID.backgroundPersist, cancelInFlight: true),
           )
         case .inactive:
           return .cancel(id: CancelID.periodicRefresh)
@@ -269,7 +269,7 @@ struct AppFeature {
             },
             .run { _ in
               await worktreeInfoWatcher.send(.setSelectedWorktreeID(nil))
-            }
+            },
           )
         }
         let rootURL = worktree.repositoryRootURL
@@ -286,7 +286,7 @@ struct AppFeature {
           .run { _ in
             await worktreeInfoWatcher.send(.setSelectedWorktreeID(worktree.id))
           },
-          .send(.worktreeSettingsLoaded(settings, worktreeID: worktreeID))
+          .send(.worktreeSettingsLoaded(settings, worktreeID: worktreeID)),
         )
 
       case .repositories(.delegate(.worktreeCreated(let worktree))):
@@ -297,7 +297,7 @@ struct AppFeature {
             .ensureInitialTab(
               worktree,
               runSetupScriptIfNew: shouldRunSetupScript,
-              focusing: false
+              focusing: false,
             )
           )
         }
@@ -314,7 +314,7 @@ struct AppFeature {
         )
         let recencyIDs = CommandPaletteFeature.recencyRetentionIDs(
           from: repositories,
-          scripts: state.allScripts
+          scripts: state.allScripts,
         )
         let worktrees = state.repositories.worktreesForInfoWatcher()
         var effects: [Effect<Action>] = []
@@ -326,7 +326,7 @@ struct AppFeature {
                   SettingsRepositorySummary(
                     id: $0.id,
                     name: $0.name,
-                    isGitRepository: $0.isGitRepository
+                    isGitRepository: $0.isGitRepository,
                   )
                 }
               )
@@ -408,7 +408,7 @@ struct AppFeature {
           @Shared(.repositorySettings(rootURL)) var repositorySettings
           state.openActionSelection = OpenWorktreeAction.fromSettingsID(
             repositorySettings.openActionID,
-            defaultEditorID: settings.defaultEditorID
+            defaultEditorID: settings.defaultEditorID,
           )
         }
         var effects: [Effect<Action>] = [
@@ -423,7 +423,7 @@ struct AppFeature {
               .applySettings(
                 updateChannel: settings.updateChannel,
                 automaticallyChecks: settings.updatesAutomaticallyCheckForUpdates,
-                automaticallyDownloads: settings.updatesAutomaticallyDownloadUpdates
+                automaticallyDownloads: settings.updatesAutomaticallyDownloadUpdates,
               )
             )
           ),
@@ -463,7 +463,7 @@ struct AppFeature {
           effects.append(
             agentPresenceBadgesToggledEffect(
               badgesEnabled: settings.agentPresenceBadgesEnabled,
-              state: state
+              state: state,
             )
           )
         }
@@ -523,7 +523,7 @@ struct AppFeature {
         }
         state.alert = quitConfirmationAlert(
           terminateOnQuit: state.settings.terminateSessionsOnQuit,
-          hasBlockingScripts: terminalClient.hasInflightBlockingScripts()
+          hasBlockingScripts: terminalClient.hasInflightBlockingScripts(),
         )
         // Without surfacing the main window, an alert raised from Cmd+Q
         // when no window is up has no scene to anchor to and `terminate()`
@@ -606,7 +606,7 @@ struct AppFeature {
               .focusSurface(worktree, tabID: location.tabID, surfaceID: location.surfaceID)
             )
             await terminalClient.markNotificationRead(location.worktreeID, location.notificationID)
-          }
+          },
         )
 
       case .runScript:
@@ -762,7 +762,7 @@ struct AppFeature {
         )
         state.openActionSelection = OpenWorktreeAction.fromSettingsID(
           settings.openActionID,
-          defaultEditorID: normalizedDefaultEditorID
+          defaultEditorID: normalizedDefaultEditorID,
         )
         state.repoScripts = settings.scripts
         return .none
@@ -774,7 +774,7 @@ struct AppFeature {
           // Close the socket FD with an error so the CLI doesn't hang.
           if let responseFD {
             return sendSocketResponse(
-              clientFD: responseFD, ok: false, error: "Invalid deeplink: \(url.absoluteString)")
+              clientFD: responseFD, ok: false, error: "Invalid deeplink: \(url.absoluteString)", )
           }
           if url.scheme == "supacode" {
             state.alert = AlertState {
@@ -795,7 +795,7 @@ struct AppFeature {
           // FD, and replaying them later would leave the CLI client hanging.
           if let responseFD {
             return sendSocketResponse(
-              clientFD: responseFD, ok: false, error: "Supacode is still loading. Try again.")
+              clientFD: responseFD, ok: false, error: "Supacode is still loading. Try again.", )
           }
           state.pendingDeeplinks.append(parsed)
           return .none
@@ -814,7 +814,7 @@ struct AppFeature {
         return .concatenate(
           effect,
           sendSocketResponse(
-            clientFD: responseFD, ok: succeeded, error: errorMessage))
+            clientFD: responseFD, ok: succeeded, error: errorMessage, ), )
 
       case .deeplinkReferenceOpened:
         state.isDeeplinkReferenceRequested = false
@@ -823,7 +823,7 @@ struct AppFeature {
       case .systemNotificationsPermissionFailed(let errorMessage):
         return .concatenate(
           .send(.settings(.setSystemNotificationsEnabled(false))),
-          .send(.settings(.showNotificationPermissionAlert(errorMessage: errorMessage)))
+          .send(.settings(.showNotificationPermissionAlert(errorMessage: errorMessage))),
         )
 
       case .alert(.dismiss):
@@ -853,7 +853,7 @@ struct AppFeature {
             sendSocketResponse(
               clientFD: $0,
               ok: succeeded,
-              error: succeeded ? nil : extractAlertMessage(state.alert))
+              error: succeeded ? nil : extractAlertMessage(state.alert), )
           } ?? .none
         let policyEffect: Effect<Action> =
           alwaysAllow
@@ -912,7 +912,7 @@ struct AppFeature {
           .repositories(
             .requestDeleteSidebarItems([
               RepositoriesFeature.DeleteWorktreeTarget(
-                worktreeID: worktreeID, repositoryID: repositoryID)
+                worktreeID: worktreeID, repositoryID: repositoryID, )
             ])))
 
       case .commandPalette(.delegate(.archiveWorktree(let worktreeID, let repositoryID))):
@@ -1031,7 +1031,7 @@ struct AppFeature {
         }
         return .merge(
           .send(.repositories(.selectWorktree(worktreeID))),
-          .send(.commandPalette(.setPresented(true)))
+          .send(.commandPalette(.setPresented(true))),
         )
       case .terminalEvent(.setupScriptConsumed(let worktreeID)):
         return .send(.repositories(.consumeSetupScript(worktreeID)))
@@ -1046,12 +1046,13 @@ struct AppFeature {
                 scriptID: definition.id,
                 kind: kind,
                 exitCode: exitCode,
-                tabId: tabId
+                tabId: tabId,
               )
             )
           )
         case .archive:
-          return .send(.repositories(.archiveScriptCompleted(worktreeID: worktreeID, exitCode: exitCode, tabId: tabId)))
+          return .send(
+            .repositories(.archiveScriptCompleted(worktreeID: worktreeID, exitCode: exitCode, tabId: tabId)))
         case .delete:
           return .send(.repositories(.deleteScriptCompleted(worktreeID: worktreeID, exitCode: exitCode, tabId: tabId)))
         }
@@ -1080,7 +1081,7 @@ struct AppFeature {
         // capture pre-projection state and miss the new surface.
         return .concatenate(
           projectionEffect,
-          .send(.agentPresence(.delegate(.surfacesChanged(restoredAddedSurfaces))))
+          .send(.agentPresence(.delegate(.surfacesChanged(restoredAddedSurfaces)))),
         )
 
       case .terminalEvent(.tabProjectionChanged(let worktreeID, let projection)):
@@ -1156,7 +1157,7 @@ struct AppFeature {
   /// the latter shimmers the sidebar without a separate projection dispatch.
   private func agentPresenceFanOutEffect(
     surfaces: Set<UUID>,
-    state: State
+    state: State,
   ) -> Effect<Action> {
     @Shared(.settingsFile) var settingsFile: SettingsFile
     let badgesEnabled = settingsFile.global.agentPresenceBadgesEnabled
@@ -1176,7 +1177,7 @@ struct AppFeature {
   /// state immediately drains or repopulates without waiting for a hook event.
   private func agentPresenceBadgesToggledEffect(
     badgesEnabled: Bool,
-    state: State
+    state: State,
   ) -> Effect<Action> {
     let rowIDs = state.repositories.sidebarItems
       .filter { !$0.surfaceIDs.isEmpty }
@@ -1187,7 +1188,7 @@ struct AppFeature {
   private func agentSnapshotEffects(
     for rowIDs: Set<SidebarItemID>,
     state: State,
-    badgesEnabled: Bool
+    badgesEnabled: Bool,
   ) -> Effect<Action> {
     let presence = state.agentPresence
     var effects: [Effect<Action>] = []
@@ -1232,7 +1233,7 @@ struct AppFeature {
     worktree: Worktree,
     action: OpenWorktreeAction,
     source: OpenWorktreeSource,
-    state: State
+    state: State,
   ) -> Effect<Action> {
     // Orphan rows can't be opened anywhere meaningful; bail out
     // before invoking the workspace / terminal client.
@@ -1255,7 +1256,7 @@ struct AppFeature {
         .createTabWithInput(
           worktree,
           input: "$EDITOR",
-          runSetupScriptIfNew: shouldRunSetupScript
+          runSetupScriptIfNew: shouldRunSetupScript,
         )
       )
     }
@@ -1269,7 +1270,7 @@ struct AppFeature {
     _ deeplink: Deeplink,
     source: ActionSource = .urlScheme,
     responseFD: Int32? = nil,
-    state: inout State
+    state: inout State,
   ) -> Effect<Action> {
     switch deeplink {
     case .open:
@@ -1279,7 +1280,7 @@ struct AppFeature {
       return .none
     case .worktree(let worktreeID, let action):
       return handleWorktreeDeeplink(
-        worktreeID: worktreeID, action: action, source: source, responseFD: responseFD, state: &state
+        worktreeID: worktreeID, action: action, source: source, responseFD: responseFD, state: &state,
       )
     case .repoOpen(let path):
       return .send(.repositories(.openRepositories([path])))
@@ -1289,7 +1290,7 @@ struct AppFeature {
       let baseRef,
       let fetchOrigin,
       let worktreeName,
-      let worktreePath
+      let worktreePath,
     ):
       guard let repository = state.repositories.repositories[id: repositoryID] else {
         deeplinkLogger.warning("Repository not found: \(repositoryID)")
@@ -1319,7 +1320,7 @@ struct AppFeature {
       }
       let placement = WorktreePlacementOverride(
         name: worktreeName?.isEmpty == true ? nil : worktreeName,
-        path: worktreePath?.isEmpty == true ? nil : worktreePath
+        path: worktreePath?.isEmpty == true ? nil : worktreePath,
       )
       return .send(
         .repositories(
@@ -1363,7 +1364,7 @@ struct AppFeature {
     source: ActionSource = .urlScheme,
     responseFD: Int32? = nil,
     state: inout State,
-    bypassConfirmation: Bool = false
+    bypassConfirmation: Bool = false,
   ) -> Effect<Action> {
     let worktreeID = resolveWorktreeID(rawWorktreeID, state: state)
     guard state.repositories.worktree(for: worktreeID) != nil else {
@@ -1425,7 +1426,7 @@ struct AppFeature {
     action: Deeplink.WorktreeAction,
     state: inout State,
     bypassConfirmation: Bool,
-    responseFD: Int32? = nil
+    responseFD: Int32? = nil,
   ) -> Effect<Action> {
     // Block only the actions that would spawn a shell/script at the
     // missing working dir. Cleanup actions (delete/archive/pin) and
@@ -1472,7 +1473,7 @@ struct AppFeature {
         scriptID: scriptID,
         state: &state,
         bypassConfirmation: bypassConfirmation,
-        responseFD: responseFD
+        responseFD: responseFD,
       )
     case .stopScript(let scriptID):
       return stopScriptDeeplinkEffect(worktreeID: worktreeID, scriptID: scriptID, state: &state)
@@ -1489,7 +1490,7 @@ struct AppFeature {
         action: action,
         state: &state,
         bypassConfirmation: bypassConfirmation,
-        responseFD: responseFD
+        responseFD: responseFD,
       )
     case .pin:
       return .send(.repositories(.pinWorktree(worktreeID)))
@@ -1520,7 +1521,7 @@ struct AppFeature {
       if requiresInputConfirmation(state: state, bypassConfirmation: bypassConfirmation) {
         return presentDeeplinkConfirmation(
           worktreeID: worktreeID, responseFD: responseFD, message: .command(input),
-          action: action, state: &state)
+          action: action, state: &state, )
       }
       return sendTerminalCommand(worktreeID: worktreeID, state: state) { worktree in
         .createTabWithInput(worktree, input: input, runSetupScriptIfNew: false, id: id)
@@ -1533,7 +1534,7 @@ struct AppFeature {
           responseFD: responseFD,
           message: .confirmation("Close tab \(tabID.uuidString.prefix(8))…?"),
           action: action,
-          state: &state)
+          state: &state, )
       }
       return sendTerminalCommand(worktreeID: worktreeID, state: state) { worktree in
         .destroyTab(worktree, tabID: TerminalTabID(rawValue: tabID))
@@ -1547,7 +1548,7 @@ struct AppFeature {
       {
         return presentDeeplinkConfirmation(
           worktreeID: worktreeID, responseFD: responseFD, message: .command(input),
-          action: action, state: &state)
+          action: action, state: &state, )
       }
       return sendTerminalCommand(worktreeID: worktreeID, state: state) { worktree in
         .focusSurface(worktree, tabID: TerminalTabID(rawValue: tabID), surfaceID: surfaceID, input: input)
@@ -1572,12 +1573,12 @@ struct AppFeature {
       {
         return presentDeeplinkConfirmation(
           worktreeID: worktreeID, responseFD: responseFD, message: .command(input),
-          action: action, state: &state)
+          action: action, state: &state, )
       }
       return sendTerminalCommand(worktreeID: worktreeID, state: state) { worktree in
         .splitSurface(
           worktree, tabID: TerminalTabID(rawValue: tabID), surfaceID: surfaceID,
-          direction: direction, input: input, id: id)
+          direction: direction, input: input, id: id, )
       }
     case .surfaceDestroy(let tabID, let surfaceID):
       guard validateSurface(worktreeID: worktreeID, tabID: tabID, surfaceID: surfaceID, state: &state) else {
@@ -1589,7 +1590,7 @@ struct AppFeature {
           responseFD: responseFD,
           message: .confirmation("Close surface \(surfaceID.uuidString.prefix(8))…?"),
           action: action,
-          state: &state)
+          state: &state, )
       }
       return sendTerminalCommand(worktreeID: worktreeID, state: state) { worktree in
         .destroySurface(worktree, tabID: TerminalTabID(rawValue: tabID), surfaceID: surfaceID)
@@ -1602,7 +1603,7 @@ struct AppFeature {
     scriptID: UUID,
     state: inout State,
     bypassConfirmation: Bool,
-    responseFD: Int32?
+    responseFD: Int32?,
   ) -> Effect<Action> {
     // Read scripts from storage so cross-worktree deeplinks are selection-agnostic.
     guard let worktree = state.repositories.worktree(for: worktreeID) else {
@@ -1612,7 +1613,7 @@ struct AppFeature {
     guard let definition = resolveScript(scriptID: scriptID, in: worktree) else {
       state.alert = scriptAlert(
         title: "Script not found",
-        message: "No script matching the deeplink could be found. It may have been removed."
+        message: "No script matching the deeplink could be found. It may have been removed.",
       )
       return .none
     }
@@ -1620,14 +1621,14 @@ struct AppFeature {
     guard !trimmed.isEmpty else {
       state.alert = scriptAlert(
         title: "Script has no command",
-        message: "\"\(definition.displayName)\" has an empty command. Configure it in Settings first."
+        message: "\"\(definition.displayName)\" has an empty command. Configure it in Settings first.",
       )
       return .none
     }
     guard state.repositories.sidebarItems[id: worktreeID]?.runningScripts[id: scriptID] == nil else {
       state.alert = scriptAlert(
         title: "Script already running",
-        message: "\"\(definition.displayName)\" is already running in this worktree."
+        message: "\"\(definition.displayName)\" is already running in this worktree.",
       )
       return .none
     }
@@ -1637,7 +1638,7 @@ struct AppFeature {
         responseFD: responseFD,
         message: .command(definition.command),
         action: .runScript(scriptID: scriptID),
-        state: &state
+        state: &state,
       )
     }
     analyticsClient.capture("script_run", ["kind": definition.kind.rawValue])
@@ -1667,7 +1668,7 @@ struct AppFeature {
   private func stopScriptDeeplinkEffect(
     worktreeID: Worktree.ID,
     scriptID: UUID,
-    state: inout State
+    state: inout State,
   ) -> Effect<Action> {
     // Read scripts from storage so cross-worktree deeplinks are selection-agnostic.
     guard let worktree = state.repositories.worktree(for: worktreeID) else {
@@ -1677,7 +1678,7 @@ struct AppFeature {
     guard let definition = resolveScript(scriptID: scriptID, in: worktree) else {
       state.alert = scriptAlert(
         title: "Script not found",
-        message: "No script matching the deeplink could be found. It may have been removed."
+        message: "No script matching the deeplink could be found. It may have been removed.",
       )
       return .none
     }
@@ -1685,7 +1686,7 @@ struct AppFeature {
     guard runningScripts[id: scriptID] != nil else {
       state.alert = scriptAlert(
         title: "Script not running",
-        message: "\"\(definition.displayName)\" is not currently running in this worktree."
+        message: "\"\(definition.displayName)\" is not currently running in this worktree.",
       )
       return .none
     }
@@ -1698,7 +1699,7 @@ struct AppFeature {
   private func pruneScriptRecencyEffect(state: State) -> Effect<Action> {
     let ids = CommandPaletteFeature.recencyRetentionIDs(
       from: state.repositories.repositories,
-      scripts: state.allScripts
+      scripts: state.allScripts,
     )
     return .send(.commandPalette(.pruneRecency(ids)))
   }
@@ -1756,7 +1757,7 @@ struct AppFeature {
     action: Deeplink.WorktreeAction,
     state: inout State,
     bypassConfirmation: Bool,
-    responseFD: Int32? = nil
+    responseFD: Int32? = nil,
   ) -> Effect<Action> {
     guard let repositoryID = resolveRepositoryID(for: worktreeID, label: "delete", state: &state) else {
       return .none
@@ -1787,7 +1788,7 @@ struct AppFeature {
       return .none
     }
     let target = RepositoriesFeature.DeleteWorktreeTarget(
-      worktreeID: worktreeID, repositoryID: repositoryID
+      worktreeID: worktreeID, repositoryID: repositoryID,
     )
     if isFolder {
       // Folders always surface the 3-button confirmation so users
@@ -1804,7 +1805,7 @@ struct AppFeature {
         responseFD: responseFD,
         message: .confirmation("Delete worktree \"\(worktreeName)\"?"),
         action: action,
-        state: &state
+        state: &state,
       )
     }
     return .send(.repositories(.deleteSidebarItemConfirmed(worktreeID, repositoryID)))
@@ -1813,7 +1814,7 @@ struct AppFeature {
   private func resolveRepositoryID(
     for worktreeID: Worktree.ID,
     label: String,
-    state: inout State
+    state: inout State,
   ) -> Repository.ID? {
     guard let repositoryID = state.repositories.repositoryID(containing: worktreeID) else {
       deeplinkLogger.warning("Repository not found for worktree \(worktreeID) during \(label)")
@@ -1836,7 +1837,7 @@ struct AppFeature {
   /// Returns `true` when confirmation has not been bypassed (via policy or re-dispatch).
   private func requiresInputConfirmation(
     state: State,
-    bypassConfirmation: Bool
+    bypassConfirmation: Bool,
   ) -> Bool {
     !bypassConfirmation
   }
@@ -1846,7 +1847,7 @@ struct AppFeature {
   private func sendTerminalCommand(
     worktreeID: Worktree.ID,
     state: State,
-    command: (Worktree) -> TerminalClient.Command
+    command: (Worktree) -> TerminalClient.Command,
   ) -> Effect<Action> {
     guard let worktree = state.repositories.worktree(for: worktreeID) else {
       deeplinkLogger.warning("Worktree \(worktreeID) vanished before terminal command could be dispatched.")
@@ -1916,11 +1917,11 @@ struct AppFeature {
   /// only edits one matrix instead of three dispatch points.
   private func quitConfirmationAlert(
     terminateOnQuit: Bool,
-    hasBlockingScripts: Bool
+    hasBlockingScripts: Bool,
   ) -> AlertState<Alert> {
     let context = QuitConfirmationContext(
       terminateOnQuit: terminateOnQuit,
-      hasBlockingScripts: hasBlockingScripts
+      hasBlockingScripts: hasBlockingScripts,
     )
     return AlertState {
       TextState("Quit Supacode?")
@@ -1964,7 +1965,7 @@ struct AppFeature {
   private func sendSocketResponse(
     clientFD: Int32,
     ok succeeded: Bool,
-    error: String? = nil
+    error: String? = nil,
   ) -> Effect<Action> {
     .run { _ in
       AgentHookSocketServer.sendCommandResponse(clientFD: clientFD, ok: succeeded, error: error)
@@ -1974,7 +1975,7 @@ struct AppFeature {
   /// Closes any pending `responseFD` stored in the confirmation dialog so the CLI does not hang.
   private func drainPendingResponseFD(
     state: inout State,
-    error: String
+    error: String,
   ) -> Effect<Action> {
     guard let clientFD = state.deeplinkInputConfirmation?.responseFD else { return .none }
     state.deeplinkInputConfirmation?.responseFD = nil
@@ -1986,7 +1987,7 @@ struct AppFeature {
     responseFD: Int32? = nil,
     message: DeeplinkConfirmationMessage,
     action: Deeplink.WorktreeAction,
-    state: inout State
+    state: inout State,
   ) -> Effect<Action> {
     let worktreeName = state.repositories.worktree(for: worktreeID)?.name ?? "Unknown"
     let repoName = state.repositories.repositoryID(containing: worktreeID)
@@ -2002,7 +2003,7 @@ struct AppFeature {
       repositoryName: repoName,
       message: message,
       action: action,
-      responseFD: responseFD
+      responseFD: responseFD,
     )
     return supersededEffect
   }
@@ -2013,7 +2014,7 @@ struct AppFeature {
   private func validateTab(
     worktreeID: Worktree.ID,
     tabID: UUID,
-    state: inout State
+    state: inout State,
   ) -> Bool {
     guard terminalClient.tabExists(worktreeID, TerminalTabID(rawValue: tabID)) else {
       deeplinkLogger.warning("Tab \(tabID) not found in worktree \(worktreeID)")
@@ -2036,7 +2037,7 @@ struct AppFeature {
     worktreeID: Worktree.ID,
     tabID: UUID,
     surfaceID: UUID,
-    state: inout State
+    state: inout State,
   ) -> Bool {
     guard validateTab(worktreeID: worktreeID, tabID: tabID, state: &state) else { return false }
     guard terminalClient.surfaceExists(worktreeID, TerminalTabID(rawValue: tabID), surfaceID) else {
@@ -2059,7 +2060,7 @@ struct AppFeature {
   /// slash since stored IDs derived from `standardizedFileURL` for directories include one.
   private func resolveWorktreeID(
     _ rawID: Worktree.ID,
-    state: State
+    state: State,
   ) -> Worktree.ID {
     guard state.repositories.worktree(for: rawID) == nil else { return rawID }
     let alternate = rawID + "/"
@@ -2101,7 +2102,7 @@ struct AppFeature {
       return urlOrWarn(
         "supacode://worktree/\(encodedWorktreeID)",
         worktreeID: worktreeID,
-        surfaceID: surfaceID
+        surfaceID: surfaceID,
       )
     }
     let tabRaw = tabID.rawValue.uuidString
@@ -2109,7 +2110,7 @@ struct AppFeature {
     return urlOrWarn(
       "supacode://worktree/\(encodedWorktreeID)/tab/\(tabRaw)/surface/\(surfaceRaw)",
       worktreeID: worktreeID,
-      surfaceID: surfaceID
+      surfaceID: surfaceID,
     )
   }
 

@@ -290,7 +290,7 @@ final class WorktreeTerminalManager {
         .newSplit(direction: ghosttyDirection),
         for: surfaceID,
         newSurfaceID: id,
-        initialInput: resolvedInput
+        initialInput: resolvedInput,
       )
       guard splitSucceeded else {
         terminalLogger.warning("splitSurface: failed for surface \(surfaceID) in worktree \(worktree.id).")
@@ -384,7 +384,7 @@ final class WorktreeTerminalManager {
     eventContinuation?.finish()
     let (stream, continuation) = AsyncStream.makeStream(
       of: TerminalClient.Event.self,
-      bufferingPolicy: .bufferingNewest(Self.eventBufferCap)
+      bufferingPolicy: .bufferingNewest(Self.eventBufferCap),
     )
     eventContinuation = continuation
     lastNotificationIndicatorCount = nil
@@ -429,7 +429,7 @@ final class WorktreeTerminalManager {
 
   func state(
     for worktree: Worktree,
-    runSetupScriptIfNew: () -> Bool = { false }
+    runSetupScriptIfNew: () -> Bool = { false },
   ) -> WorktreeTerminalState {
     if let existing = states[worktree.id] {
       if runSetupScriptIfNew() {
@@ -450,7 +450,7 @@ final class WorktreeTerminalManager {
     let state = WorktreeTerminalState(
       runtime: runtime,
       worktree: worktree,
-      runSetupScript: runSetupScript
+      runSetupScript: runSetupScript,
     )
     state.socketPath = socketServer?.socketPath
     // Load saved layout snapshot for restoration (skip when a setup script is pending).
@@ -474,7 +474,7 @@ final class WorktreeTerminalManager {
           worktreeID: worktree.id,
           surfaceID: surfaceID,
           title: title,
-          body: body
+          body: body,
         )
       )
       self?.emitProjection(for: worktree.id)
@@ -532,7 +532,7 @@ final class WorktreeTerminalManager {
     in worktree: Worktree,
     runSetupScriptIfNew: Bool,
     initialInput: String? = nil,
-    tabID: UUID? = nil
+    tabID: UUID? = nil,
   ) {
     let state = state(for: worktree) { runSetupScriptIfNew }
     let setupScript: String?
@@ -665,7 +665,7 @@ final class WorktreeTerminalManager {
     let client = zmxClient
     analyticsClient.capture(
       "terminal_persistence_session_killed",
-      ["reason": "worktree_pruned", "count": sessionIDs.count]
+      ["reason": "worktree_pruned", "count": sessionIDs.count],
     )
     Task.detached {
       await withTaskGroup(of: Void.self) { group in
@@ -747,7 +747,7 @@ final class WorktreeTerminalManager {
     guard !allSessions.isEmpty else { return }
     analyticsClient.capture(
       "terminal_persistence_session_killed",
-      ["reason": "user_quit", "count": allSessions.count, "orphan_count": orphanSessions.count]
+      ["reason": "user_quit", "count": allSessions.count, "orphan_count": orphanSessions.count],
     )
     let client = zmxClient
     await withTaskGroup(of: Void.self) { group in
@@ -778,7 +778,7 @@ final class WorktreeTerminalManager {
     terminalLogger.info("Reaping \(orphans.count) orphan zmx session(s)")
     analyticsClient.capture(
       "terminal_persistence_session_killed",
-      ["reason": "orphan_reaped", "count": orphans.count]
+      ["reason": "orphan_reaped", "count": orphans.count],
     )
     let client = zmxClient
     await withTaskGroup(of: Void.self) { group in

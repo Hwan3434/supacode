@@ -16,7 +16,7 @@ public struct GlobalScriptsSettingsView: View {
         ContentUnavailableView(
           "전역 스크립트 없음",
           systemImage: "terminal",
-          description: Text("스크립트를 추가하여 모든 저장소의 도구 모음과 커맨드 팔레트에서 사용할 수 있게 하세요.")
+          description: Text("스크립트를 추가하여 모든 저장소의 도구 모음과 커맨드 팔레트에서 사용할 수 있게 하세요."),
         )
       } else {
         scriptsForm

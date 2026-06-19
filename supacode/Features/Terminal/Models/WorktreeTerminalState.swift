@@ -28,7 +28,7 @@ struct WorktreeTabProjection: Equatable, Sendable {
     surfaceIDs: [UUID],
     activeSurfaceID: UUID?,
     unseenNotificationCount: Int,
-    isSplitZoomed: Bool = false
+    isSplitZoomed: Bool = false,
   ) {
     self.tabID = tabID
     self.surfaceIDs = surfaceIDs
@@ -110,7 +110,7 @@ final class WorktreeTerminalState {
   /// so the suppression window can compare instants of the type-erased clock.
   private static func elapsed(
     from start: any InstantProtocol<Duration>,
-    to end: any InstantProtocol<Duration>
+    to end: any InstantProtocol<Duration>,
   ) -> Duration {
     func gap<I: InstantProtocol>(_ start: I, _ end: any InstantProtocol<Duration>) -> Duration
     where I.Duration == Duration {
@@ -185,7 +185,7 @@ final class WorktreeTerminalState {
     runtime: GhosttyRuntime,
     worktree: Worktree,
     runSetupScript: Bool = false,
-    splitPreserveZoomOnNavigation: (() -> Bool)? = nil
+    splitPreserveZoomOnNavigation: (() -> Bool)? = nil,
   ) {
     self.runtime = runtime
     self.splitPreserveZoomOnNavigation = splitPreserveZoomOnNavigation ?? { runtime.splitPreserveZoomOnNavigation() }
@@ -194,7 +194,7 @@ final class WorktreeTerminalState {
     self.tabManager = TerminalTabManager()
     _repositorySettings = SharedReader(
       wrappedValue: RepositorySettings.default,
-      .repositorySettings(worktree.repositoryRootURL)
+      .repositorySettings(worktree.repositoryRootURL),
     )
     // Pre-hide the tab bar before the first tab is created to
     // avoid a visible flash. updateShouldHideTabBar() handles
@@ -276,7 +276,7 @@ final class WorktreeTerminalState {
     setupScript: String? = nil,
     initialInput: String? = nil,
     inheritingFromSurfaceId: UUID? = nil,
-    tabID: UUID? = nil
+    tabID: UUID? = nil,
   ) -> TerminalTabID? {
     let context: ghostty_surface_context_e =
       tabManager.tabs.isEmpty
@@ -445,7 +445,7 @@ final class WorktreeTerminalState {
       initialInput: creation.initialInput,
       context: creation.context,
       surfaceID: creation.tabID != nil ? tabId.rawValue : nil,
-      bypassZmx: creation.bypassZmx
+      bypassZmx: creation.bypassZmx,
     )
     updateShouldHideTabBar()
     if creation.focusing, let surface = tree.root?.leftmostLeaf() {
@@ -548,7 +548,7 @@ final class WorktreeTerminalState {
           windowIsVisible: lastWindowIsVisible == true,
           windowIsKey: lastWindowIsKey == true,
           focusedSurfaceID: focusedId,
-          surfaceID: surface.id
+          surfaceID: surface.id,
         )
         surface.setOcclusion(activity.isVisible)
         surface.focusDidChange(activity.isFocused)
@@ -568,7 +568,7 @@ final class WorktreeTerminalState {
     windowIsVisible: Bool,
     windowIsKey: Bool,
     focusedSurfaceID: UUID?,
-    surfaceID: UUID
+    surfaceID: UUID,
   ) -> SurfaceActivity {
     let isVisible = isSurfaceVisibleInTree && isSelectedTab && windowIsVisible
     let isFocused = isVisible && windowIsKey && focusedSurfaceID == surfaceID
@@ -710,7 +710,7 @@ final class WorktreeTerminalState {
     initialInput: String? = nil,
     context: ghostty_surface_context_e = GHOSTTY_SURFACE_CONTEXT_TAB,
     surfaceID: UUID? = nil,
-    bypassZmx: Bool = false
+    bypassZmx: Bool = false,
   ) -> SplitTree<GhosttySurfaceView> {
     if let existing = trees[tabId] {
       return existing
@@ -722,7 +722,7 @@ final class WorktreeTerminalState {
       inheritingFromSurfaceId: inheritingFromSurfaceId,
       context: context,
       surfaceID: surfaceID,
-      bypassZmx: bypassZmx
+      bypassZmx: bypassZmx,
     )
     let tree = SplitTree(view: surface)
     setTree(tree, for: tabId)
@@ -734,7 +734,7 @@ final class WorktreeTerminalState {
     _ action: GhosttySplitAction,
     for surfaceID: UUID,
     newSurfaceID: UUID? = nil,
-    initialInput: String? = nil
+    initialInput: String? = nil,
   ) -> Bool {
     guard let tabId = tabID(containing: surfaceID), var tree = trees[tabId] else {
       return false
@@ -760,7 +760,7 @@ final class WorktreeTerminalState {
         let newTree = try tree.inserting(
           view: newSurface,
           at: targetSurface,
-          direction: mapSplitDirection(direction)
+          direction: mapSplitDirection(direction),
         )
         updateTree(newTree, for: tabId)
         focusSurface(newSurface, in: tabId)
@@ -798,7 +798,7 @@ final class WorktreeTerminalState {
           node: targetNode,
           by: amount,
           in: spatialDirection,
-          with: CGRect(origin: .zero, size: tree.viewBounds())
+          with: CGRect(origin: .zero, size: tree.viewBounds()),
         )
         updateTree(newTree, for: tabId)
         return true
@@ -846,7 +846,7 @@ final class WorktreeTerminalState {
         let newTree = try treeWithoutSource.inserting(
           view: payload,
           at: destination,
-          direction: mapDropZone(zone)
+          direction: mapDropZone(zone),
         )
         updateTree(newTree, for: tabId)
         focusSurface(payload, in: tabId)
@@ -1046,7 +1046,7 @@ final class WorktreeTerminalState {
 
   private func captureLayoutNode(
     _ node: SplitTree<GhosttySurfaceView>.Node,
-    agentsBySurface: [UUID: [TerminalLayoutSnapshot.SurfaceAgentRecord]]
+    agentsBySurface: [UUID: [TerminalLayoutSnapshot.SurfaceAgentRecord]],
   ) -> TerminalLayoutSnapshot.LayoutNode {
     switch node {
     case .leaf(let view):
@@ -1054,7 +1054,7 @@ final class WorktreeTerminalState {
         TerminalLayoutSnapshot.SurfaceSnapshot(
           id: view.id,
           workingDirectory: view.bridge.state.pwd,
-          agents: agentsBySurface[view.id]
+          agents: agentsBySurface[view.id],
         )
       )
     case .split(let split):
@@ -1068,7 +1068,7 @@ final class WorktreeTerminalState {
           direction: direction,
           ratio: split.ratio,
           left: captureLayoutNode(split.left, agentsBySurface: agentsBySurface),
-          right: captureLayoutNode(split.right, agentsBySurface: agentsBySurface)
+          right: captureLayoutNode(split.right, agentsBySurface: agentsBySurface),
         )
       )
     }
@@ -1151,7 +1151,7 @@ final class WorktreeTerminalState {
   private func restoreLayoutNode(
     _ node: TerminalLayoutSnapshot.LayoutNode,
     anchor: GhosttySurfaceView,
-    tabId: TerminalTabID
+    tabId: TerminalTabID,
   ) {
     guard case .split(let split) = node else { return }
 
@@ -1186,7 +1186,7 @@ final class WorktreeTerminalState {
     ratio: Double,
     workingDirectory: URL?,
     tabId: TerminalTabID,
-    surfaceID: UUID? = nil
+    surfaceID: UUID? = nil,
   ) -> GhosttySurfaceView? {
     guard var tree = trees[tabId] else { return nil }
     let newSurface = createSurface(
@@ -1256,7 +1256,7 @@ final class WorktreeTerminalState {
   private func blockingScriptLaunch(_ script: String) throws -> BlockingScriptRunner.LaunchArtifacts? {
     try BlockingScriptRunner.makeLaunch(
       script: script,
-      shellPath: defaultShellPath()
+      shellPath: defaultShellPath(),
     )
   }
 
@@ -1289,7 +1289,7 @@ final class WorktreeTerminalState {
     _ kind: BlockingScriptKind,
     tabId: TerminalTabID,
     exitCode: Int?,
-    reportedTabId: TerminalTabID?
+    reportedTabId: TerminalTabID?,
   ) {
     tabManager.markBlockingScriptCompleted(tabId)
     freezeBlockingScriptSurfaces(in: tabId)
@@ -1320,7 +1320,7 @@ final class WorktreeTerminalState {
     let repoPath = worktree.repositoryRootURL.path(percentEncoded: false)
     env["SUPACODE_REPO_ID"] = percentEncode(repoPath, allowedCharacters: percentEncodingSet, label: "SUPACODE_REPO_ID")
     env["SUPACODE_WORKTREE_ID"] = percentEncode(
-      worktree.id, allowedCharacters: percentEncodingSet, label: "SUPACODE_WORKTREE_ID")
+      worktree.id, allowedCharacters: percentEncodingSet, label: "SUPACODE_WORKTREE_ID", )
     env["SUPACODE_TAB_ID"] = tabId.rawValue.uuidString
     env["SUPACODE_SURFACE_ID"] = surfaceID.uuidString
     if let socketPath {
@@ -1359,7 +1359,7 @@ final class WorktreeTerminalState {
     inheritingFromSurfaceId: UUID?,
     context: ghostty_surface_context_e,
     surfaceID: UUID? = nil,
-    bypassZmx: Bool = false
+    bypassZmx: Bool = false,
   ) -> GhosttySurfaceView {
     let resolvedID: UUID
     if let requested = surfaceID {
@@ -1379,7 +1379,7 @@ final class WorktreeTerminalState {
       surfaceID: surfaceID,
       command: command,
       initialInput: initialInput,
-      bypassZmx: bypassZmx
+      bypassZmx: bypassZmx,
     )
     let view = GhosttySurfaceView(
       id: surfaceID,
@@ -1393,7 +1393,7 @@ final class WorktreeTerminalState {
       // not get Ghostty's shell integration injected into the host shell.
       disableShellIntegration: bypassZmx,
       fontSize: inherited.fontSize,
-      context: context
+      context: context,
     )
     wireSurfaceCallbacks(view: view, tabId: tabId, surfaceID: surfaceID)
     surfaces[view.id] = view
@@ -1407,7 +1407,7 @@ final class WorktreeTerminalState {
   private func wireSurfaceCallbacks(
     view: GhosttySurfaceView,
     tabId: TerminalTabID,
-    surfaceID: UUID
+    surfaceID: UUID,
   ) {
     view.bridge.onTitleChange = { [weak self, weak view] title in
       guard let self, let view else { return }
@@ -1496,7 +1496,7 @@ final class WorktreeTerminalState {
       id: id,
       metadata: metadata,
       surfaceID: surfaceID,
-      surfaceExists: surfaces[surfaceID] != nil
+      surfaceExists: surfaces[surfaceID] != nil,
     ) {
     case .success(let event):
       onAgentHookEvent?(event)
@@ -1525,7 +1525,7 @@ final class WorktreeTerminalState {
     id: String,
     metadata: String,
     surfaceID: UUID,
-    surfaceExists: Bool
+    surfaceExists: Bool,
   ) -> Result<AgentHookEvent, PresenceDrop> {
     guard surfaceExists else { return .failure(.unknownSurface) }
     guard let signal = AgentPresenceOSC.parse(id: id, metadata: metadata) else {
@@ -1533,7 +1533,7 @@ final class WorktreeTerminalState {
     }
     return .success(
       AgentHookEvent(
-        agent: signal.agent, event: signal.eventRawValue, surfaceID: surfaceID, pid: signal.pid))
+        agent: signal.agent, event: signal.eventRawValue, surfaceID: surfaceID, pid: signal.pid, ))
   }
 
   /// Parse an OSC 3008 notify signal for the receiving surface, then sanitize and
@@ -1542,7 +1542,7 @@ final class WorktreeTerminalState {
     switch Self.notification(
       id: id,
       metadata: metadata,
-      surfaceExists: surfaces[surfaceID] != nil
+      surfaceExists: surfaces[surfaceID] != nil,
     ) {
     case .success(let resolved):
       // Gate AFTER parse so the setting can't be probed via drop-rate signals.
@@ -1594,7 +1594,7 @@ final class WorktreeTerminalState {
   nonisolated static func notification(
     id: String,
     metadata: String,
-    surfaceExists: Bool
+    surfaceExists: Bool,
   ) -> Result<ResolvedNotification, NotifyDrop> {
     guard surfaceExists else { return .failure(.unknownSurface) }
     guard let notify = AgentPresenceOSC.parseNotify(id: id, metadata: metadata) else {
@@ -1649,7 +1649,7 @@ final class WorktreeTerminalState {
     surfaceID: UUID,
     command: String?,
     initialInput: String?,
-    bypassZmx: Bool
+    bypassZmx: Bool,
   ) -> ResolvedLaunch {
     if bypassZmx {
       return ResolvedLaunch(command: command, initialInput: initialInput, commandWrapper: [])
@@ -1657,12 +1657,12 @@ final class WorktreeTerminalState {
     let resolved = ZmxAttach.resolveLaunch(
       executablePath: zmxClient.executableURL()?.path(percentEncoded: false),
       sessionID: ZmxSessionID.make(surfaceID: surfaceID),
-      command: command
+      command: command,
     )
     return ResolvedLaunch(
       command: resolved.command,
       initialInput: initialInput,
-      commandWrapper: resolved.commandWrapper
+      commandWrapper: resolved.commandWrapper,
     )
   }
 
@@ -1673,7 +1673,7 @@ final class WorktreeTerminalState {
 
   private func inheritedSurfaceConfig(
     fromSurfaceId surfaceID: UUID?,
-    context: ghostty_surface_context_e
+    context: ghostty_surface_context_e,
   ) -> InheritedSurfaceConfig {
     guard let surfaceID,
       let view = surfaces[surfaceID],
@@ -1812,9 +1812,9 @@ final class WorktreeTerminalState {
           title: trimmedTitle,
           body: trimmedBody,
           createdAt: now,
-          isRead: isRead
+          isRead: isRead,
         ),
-        at: 0
+        at: 0,
       )
       refreshSurfaceUnseenFlag(surfaceID)
       if let tabId = tabID(containing: surfaceID) {
@@ -1849,7 +1849,7 @@ final class WorktreeTerminalState {
     let client = zmxClient
     analyticsClient.capture(
       "terminal_persistence_session_killed",
-      ["reason": "user_close", "count": sessionIDs.count]
+      ["reason": "user_close", "count": sessionIDs.count],
     )
     Task.detached {
       await withTaskGroup(of: Void.self) { group in
@@ -1916,7 +1916,7 @@ final class WorktreeTerminalState {
     {
       return TerminalTabProgressDisplay.make(
         progressState: focused.bridge.state.progressState,
-        progressValue: focused.bridge.state.progressValue
+        progressValue: focused.bridge.state.progressValue,
       )
     }
     var worst: TerminalTabProgressDisplay?
@@ -1924,7 +1924,7 @@ final class WorktreeTerminalState {
       guard
         let candidate = TerminalTabProgressDisplay.make(
           progressState: surface.bridge.state.progressState,
-          progressValue: surface.bridge.state.progressValue
+          progressValue: surface.bridge.state.progressValue,
         )
       else { continue }
       if worst == nil || candidate.severity > worst!.severity {
@@ -2020,7 +2020,7 @@ final class WorktreeTerminalState {
       surfaceIDs: surfaceIDs,
       activeSurfaceID: focusedSurfaceIdByTab[tabId],
       unseenNotificationCount: unseenCount,
-      isSplitZoomed: tree.zoomed != nil
+      isSplitZoomed: tree.zoomed != nil,
     )
     guard lastTabProjections[tabId] != projection else { return }
     lastTabProjections[tabId] = projection

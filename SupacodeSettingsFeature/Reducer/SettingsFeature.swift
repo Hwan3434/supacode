@@ -151,7 +151,7 @@ public struct SettingsFeature {
         agentPresenceBadgesEnabled: agentPresenceBadgesEnabled,
         autoUpdateAgentIntegrationsEnabled: autoUpdateAgentIntegrationsEnabled,
         confirmQuitMode: confirmQuitMode,
-        terminateSessionsOnQuit: terminateSessionsOnQuit
+        terminateSessionsOnQuit: terminateSessionsOnQuit,
       )
     }
   }
@@ -220,8 +220,8 @@ public struct SettingsFeature {
               let installed = await cliInstallerClient.checkInstalled()
               await send(.cliInstallChecked(installed: installed))
             },
-            .send(.refreshAgentIntegrationStates)
-          )
+            .send(.refreshAgentIntegrationStates),
+          ),
         )
 
       case .refreshAgentIntegrationStates:
@@ -608,7 +608,7 @@ public struct SettingsFeature {
       state.repositorySettings = RepositorySettingsFeature.State(
         rootURL: summary.rootURL,
         isGitRepository: summary.isGitRepository,
-        settings: repositorySettings
+        settings: repositorySettings,
       )
     } else {
       // Summary can flip kind at runtime (git → folder or vice versa)

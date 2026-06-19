@@ -73,9 +73,9 @@ public struct RepositorySettingsView: View {
             SupacodePaths.worktreeBaseDirectory(
               for: store.rootURL,
               globalDefaultPath: store.globalDefaultWorktreeBaseDirectoryPath,
-              repositoryOverridePath: nil
+              repositoryOverridePath: nil,
             ).path(percentEncoded: false)
-          )
+          ),
         ) {
           Text("기본 디렉터리").monospaced(false)
           Text("새 워크트리의 상위 경로입니다.").monospaced(false)
@@ -101,11 +101,11 @@ public struct RepositorySettingsView: View {
       Section("환경 변수") {
         ScriptEnvironmentRow(
           name: "SUPACODE_WORKTREE_PATH",
-          description: "활성 워크트리 경로."
+          description: "활성 워크트리 경로.",
         )
         ScriptEnvironmentRow(
           name: "SUPACODE_ROOT_PATH",
-          description: "저장소 루트 경로."
+          description: "저장소 루트 경로.",
         )
       }
     }

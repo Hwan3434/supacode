@@ -51,7 +51,7 @@ struct TerminalClient {
     case focusSurface(Worktree, tabID: TerminalTabID, surfaceID: UUID, input: String? = nil)
     case splitSurface(
       Worktree, tabID: TerminalTabID, surfaceID: UUID, direction: SplitDirection,
-      input: String?, id: UUID? = nil)
+      input: String?, id: UUID? = nil, )
     case destroyTab(Worktree, tabID: TerminalTabID)
     case destroySurface(Worktree, tabID: TerminalTabID, surfaceID: UUID)
     case beginTabRename(Worktree, tabID: TerminalTabID? = nil)
@@ -69,7 +69,7 @@ struct TerminalClient {
     case focusChanged(worktreeID: Worktree.ID, surfaceID: UUID)
     case taskStatusChanged(worktreeID: Worktree.ID, status: WorktreeTaskStatus)
     case blockingScriptCompleted(
-      worktreeID: Worktree.ID, kind: BlockingScriptKind, exitCode: Int?, tabId: TerminalTabID?)
+      worktreeID: Worktree.ID, kind: BlockingScriptKind, exitCode: Int?, tabId: TerminalTabID?, )
     case commandPaletteToggleRequested(worktreeID: Worktree.ID)
     case setupScriptConsumed(worktreeID: Worktree.ID)
     /// Per-worktree projection emitted when surfaces / task-running / unseen / notifications drift.
@@ -88,7 +88,7 @@ struct TerminalClient {
     /// A tab's stripe-progress display flipped. Routed into the matching
     /// `TerminalTabFeature.State.progressDisplay` so the stripe recolors.
     case tabProgressDisplayChanged(
-      worktreeID: Worktree.ID, tabID: TerminalTabID, display: TerminalTabProgressDisplay?)
+      worktreeID: Worktree.ID, tabID: TerminalTabID, display: TerminalTabProgressDisplay?, )
     /// Forwarded from the terminal manager when surfaces close (single or bulk).
     /// `AppFeature` translates this into `agentPresence(.surfaceClosed/surfacesClosed)`.
     case surfacesClosed(Set<UUID>)
@@ -117,7 +117,7 @@ extension TerminalClient: DependencyKey {
     hasInflightBlockingScripts: { fatalError("TerminalClient.hasInflightBlockingScripts not configured") },
     terminateAllSessions: { fatalError("TerminalClient.terminateAllSessions not configured") },
     reapOrphanSessions: { _ in fatalError("TerminalClient.reapOrphanSessions not configured") },
-    saveLayoutsWithAgents: { _ in fatalError("TerminalClient.saveLayoutsWithAgents not configured") }
+    saveLayoutsWithAgents: { _ in fatalError("TerminalClient.saveLayoutsWithAgents not configured") },
   )
 
   static let testValue = TerminalClient(
@@ -134,7 +134,7 @@ extension TerminalClient: DependencyKey {
     hasInflightBlockingScripts: unimplemented("TerminalClient.hasInflightBlockingScripts", placeholder: false),
     terminateAllSessions: unimplemented("TerminalClient.terminateAllSessions"),
     reapOrphanSessions: unimplemented("TerminalClient.reapOrphanSessions"),
-    saveLayoutsWithAgents: unimplemented("TerminalClient.saveLayoutsWithAgents")
+    saveLayoutsWithAgents: unimplemented("TerminalClient.saveLayoutsWithAgents"),
   )
 }
 

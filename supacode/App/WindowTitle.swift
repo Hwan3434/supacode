@@ -19,7 +19,7 @@ enum WindowTitle {
   @MainActor
   static func compute(
     repositories: RepositoriesFeature.State,
-    terminalManager: WorktreeTerminalManager
+    terminalManager: WorktreeTerminalManager,
   ) -> String {
     switch repositories.selection {
     case .archivedWorktrees:
@@ -28,14 +28,14 @@ enum WindowTitle {
       return worktreeTitle(
         worktreeID: worktreeID,
         repositories: repositories,
-        terminalManager: terminalManager
+        terminalManager: terminalManager,
       )
     case .failedRepository(let repositoryID):
       let url = URL(fileURLWithPath: repositoryID).standardizedFileURL
       let name = repoDisplayName(
         repositoryID: repositoryID,
         fallback: Repository.name(for: url),
-        repositories: repositories
+        repositories: repositories,
       )
       return format(repo: name, tab: "Unavailable")
     case .none:
@@ -47,7 +47,7 @@ enum WindowTitle {
   private static func worktreeTitle(
     worktreeID: Worktree.ID,
     repositories: RepositoriesFeature.State,
-    terminalManager: WorktreeTerminalManager
+    terminalManager: WorktreeTerminalManager,
   ) -> String {
     guard let repositoryID = repositories.repositoryID(containing: worktreeID),
       let repository = repositories.repositories[id: repositoryID]
@@ -57,7 +57,7 @@ enum WindowTitle {
     let repoTitle = repoDisplayName(
       repositoryID: repositoryID,
       fallback: repository.name,
-      repositories: repositories
+      repositories: repositories,
     )
     let tabTitle = terminalManager.stateIfExists(for: worktreeID).flatMap { state in
       tabDisplayTitle(in: state)
@@ -69,11 +69,11 @@ enum WindowTitle {
   private static func repoDisplayName(
     repositoryID: Repository.ID,
     fallback: String,
-    repositories: RepositoriesFeature.State
+    repositories: RepositoriesFeature.State,
   ) -> String {
     Repository.sidebarDisplayName(
       custom: repositories.sidebar.sections[repositoryID]?.title,
-      fallback: fallback
+      fallback: fallback,
     )
   }
 

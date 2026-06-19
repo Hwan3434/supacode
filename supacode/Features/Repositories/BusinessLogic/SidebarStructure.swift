@@ -45,7 +45,7 @@ enum SidebarActiveClassification: Int, CaseIterable, Comparable, Sendable {
     hasUnread: Bool,
     hasAwaiting: Bool,
     hasAgent: Bool,
-    hasRunning: Bool
+    hasRunning: Bool,
   ) -> Self? {
     if hasUnread && hasAwaiting && hasRunning { return .unreadAwaitingRunning }
     if hasUnread && hasAwaiting { return .unreadAwaiting }
@@ -69,7 +69,7 @@ enum SidebarActiveClassification: Int, CaseIterable, Comparable, Sendable {
       hasUnread: state.hasUnseenNotifications,
       hasAwaiting: state.hasAgentAwaitingInput,
       hasAgent: !state.agents.isEmpty,
-      hasRunning: !state.runningScripts.isEmpty
+      hasRunning: !state.runningScripts.isEmpty,
     )
   }
 }
@@ -86,7 +86,7 @@ enum SidebarHighlightOrdering {
 
   static func orderedRowIDs(
     forPinned: Bool,
-    candidates: [Candidate]
+    candidates: [Candidate],
   ) -> [SidebarItemID] {
     struct Entry {
       let id: SidebarItemID
@@ -185,7 +185,7 @@ struct SidebarStructure: Equatable, Sendable {
       repositoryID: Repository.ID,
       rootURL: URL,
       customTitle: String?,
-      color: RepositoryColor?
+      color: RepositoryColor?,
     )
     case placeholder
 
@@ -233,7 +233,7 @@ struct SidebarStructure: Equatable, Sendable {
     hotkeySlots: [],
     slotByID: [:],
     repositoryHighlightByID: [:],
-    reorderableRepositoryIDs: []
+    reorderableRepositoryIDs: [],
   )
 
   /// First-frame value used before the reducer recomputes. Surfaces the
@@ -245,7 +245,7 @@ struct SidebarStructure: Equatable, Sendable {
     hotkeySlots: [],
     slotByID: [:],
     repositoryHighlightByID: [:],
-    reorderableRepositoryIDs: []
+    reorderableRepositoryIDs: [],
   )
 }
 
@@ -257,7 +257,7 @@ extension RepositoriesFeature.State {
     @Shared(.sidebarGroupActiveRows) var groupActive
     let new = computeSidebarStructure(
       groupPinned: groupPinned,
-      groupActive: groupActive
+      groupActive: groupActive,
     )
     if new != sidebarStructure {
       sidebarStructure = new
@@ -484,7 +484,7 @@ extension RepositoriesFeature.State {
   /// the parent and reintroduce the regression commit `0a1ed578` documents.
   func computeSidebarStructure(
     groupPinned: Bool,
-    groupActive: Bool
+    groupActive: Bool,
   ) -> SidebarStructure {
     if !isInitialLoadComplete, repositories.isEmpty {
       return SidebarStructure(
@@ -493,7 +493,7 @@ extension RepositoriesFeature.State {
         hotkeySlots: [],
         slotByID: [:],
         repositoryHighlightByID: [:],
-        reorderableRepositoryIDs: []
+        reorderableRepositoryIDs: [],
       )
     }
 
@@ -513,7 +513,7 @@ extension RepositoriesFeature.State {
       pinnedHoisted: hoists.pinned,
       activeHoisted: hoists.active,
       hoisted: hoists.hoistedSet,
-      sections: sections
+      sections: sections,
     )
 
     return SidebarStructure(
@@ -523,9 +523,9 @@ extension RepositoriesFeature.State {
       slotByID: hotkey.slotByID,
       repositoryHighlightByID: computeRepositoryHighlightTags(
         pinnedHoisted: hoists.pinned,
-        activeHoisted: hoists.active
+        activeHoisted: hoists.active,
       ),
-      reorderableRepositoryIDs: repoSections.reorderableRepositoryIDs
+      reorderableRepositoryIDs: repoSections.reorderableRepositoryIDs,
     )
   }
 
@@ -560,7 +560,7 @@ extension RepositoriesFeature.State {
       active = orderedHighlightCandidates(
         forPinned: false,
         candidateIDs: Array(candidateIDs),
-        excluding: hoistedSet
+        excluding: hoistedSet,
       )
       hoistedSet.formUnion(active)
     } else {
@@ -580,7 +580,7 @@ extension RepositoriesFeature.State {
     var reorderableRepositoryIDs: [Repository.ID] = []
     let pendingIDsByRepo: [Repository.ID: Set<Worktree.ID>] = Dictionary(
       grouping: pendingWorktrees,
-      by: \.repositoryID
+      by: \.repositoryID,
     ).mapValues { Set($0.map(\.id)) }
 
     for rootURL in orderedRepositoryRoots() {
@@ -592,7 +592,7 @@ extension RepositoriesFeature.State {
             repositoryID: repositoryID,
             rootURL: rootURL,
             customTitle: sectionEntry?.title,
-            color: sectionEntry?.color
+            color: sectionEntry?.color,
           )
         )
         reorderableRepositoryIDs.append(repositoryID)
@@ -612,7 +612,7 @@ extension RepositoriesFeature.State {
         repositoryID: repositoryID,
         pendingIDs: pendingIDsByRepo[repositoryID] ?? [],
         hoistedRowIDs: hoisted,
-        nestWorktreesByBranch: sidebarNestWorktreesByBranch && repository.isGitRepository
+        nestWorktreesByBranch: sidebarNestWorktreesByBranch && repository.isGitRepository,
       )
       sections.append(.repository(repositoryID: repositoryID, groups: groups))
     }
@@ -629,7 +629,7 @@ extension RepositoriesFeature.State {
     pinnedHoisted: [Worktree.ID],
     activeHoisted: [Worktree.ID],
     hoisted: Set<Worktree.ID>,
-    sections: [SidebarStructure.Section]
+    sections: [SidebarStructure.Section],
   ) -> HotkeyOrdering {
     let perRepoVisibleIDs = hotkeyEligibleIDs(in: sections)
     var order: [Worktree.ID] = []
@@ -649,7 +649,7 @@ extension RepositoriesFeature.State {
 
   private func computeRepositoryHighlightTags(
     pinnedHoisted: [Worktree.ID],
-    activeHoisted: [Worktree.ID]
+    activeHoisted: [Worktree.ID],
   ) -> [Repository.ID: SidebarHighlightRepoTag] {
     guard !pinnedHoisted.isEmpty || !activeHoisted.isEmpty else { return [:] }
     var contributingRepoIDs: Set<Repository.ID> = []
@@ -669,7 +669,7 @@ extension RepositoriesFeature.State {
       let section = sidebar.sections[repoID]
       tags[repoID] = SidebarHighlightRepoTag(
         repoName: Repository.sidebarDisplayName(custom: section?.title, fallback: repository.name),
-        repoColor: section?.color
+        repoColor: section?.color,
       )
     }
     return tags
@@ -708,7 +708,7 @@ extension RepositoriesFeature.State {
   private func orderedHighlightCandidates(
     forPinned: Bool,
     candidateIDs: [SidebarItemID],
-    excluding: Set<Worktree.ID>
+    excluding: Set<Worktree.ID>,
   ) -> [Worktree.ID] {
     var candidates: [SidebarHighlightOrdering.Candidate] = []
     candidates.reserveCapacity(candidateIDs.count)
@@ -719,7 +719,7 @@ extension RepositoriesFeature.State {
         SidebarHighlightOrdering.Candidate(
           id: id,
           branchName: state.branchName,
-          classification: SidebarActiveClassification.classify(state)
+          classification: SidebarActiveClassification.classify(state),
         )
       )
     }
@@ -747,7 +747,7 @@ extension SidebarItemGroup {
     repositoryID: Repository.ID,
     pendingIDs: Set<Worktree.ID>,
     hoistedRowIDs: Set<Worktree.ID>,
-    nestWorktreesByBranch: Bool
+    nestWorktreesByBranch: Bool,
   ) -> [SidebarItemGroup] {
     guard let bucket = state.sidebarGrouping.bucketsByRepository[repositoryID] else { return [] }
     let pinnedRows = bucket[.pinned]
@@ -812,22 +812,22 @@ extension SidebarItemGroup {
       SidebarItemGroup(
         slot: .main(isSole: isSoleDefaultWorktree),
         repositoryID: repositoryID,
-        rowIDs: mainID.map { [$0] } ?? []
+        rowIDs: mainID.map { [$0] } ?? [],
       ),
       SidebarItemGroup(
         slot: .pinnedTail,
         repositoryID: repositoryID,
-        rowIDs: pinnedTail
+        rowIDs: pinnedTail,
       ),
       SidebarItemGroup(
         slot: .pending,
         repositoryID: repositoryID,
-        rowIDs: pendingTail
+        rowIDs: pendingTail,
       ),
       SidebarItemGroup(
         slot: .unpinnedTail,
         repositoryID: repositoryID,
-        rowIDs: unpinnedTail
+        rowIDs: unpinnedTail,
       ),
     ]
   }
@@ -837,7 +837,7 @@ extension SidebarItemGroup {
   /// stability rather than crashing.
   private static func sortedByBranchName(
     _ ids: [SidebarItemID],
-    in state: RepositoriesFeature.State
+    in state: RepositoriesFeature.State,
   ) -> [SidebarItemID] {
     ids.sorted { lhs, rhs in
       let lhsName = state.sidebarItems[id: lhs]?.branchName ?? lhs
@@ -859,7 +859,7 @@ extension SidebarItemGroup {
     offsets: IndexSet,
     destination: Int,
     visibleIDs: [Worktree.ID],
-    fullIDs: [Worktree.ID]
+    fullIDs: [Worktree.ID],
   ) -> (offsets: IndexSet, destination: Int)? {
     guard destination >= 0, destination <= visibleIDs.count else { return nil }
     var fullIndexByID: [Worktree.ID: Int] = [:]

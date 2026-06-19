@@ -19,7 +19,7 @@ public struct AppearanceSettingsView: View {
             ForEach(AppearanceMode.allCases) { mode in
               AppearanceOptionCardView(
                 mode: mode,
-                isSelected: mode == appearanceMode.wrappedValue
+                isSelected: mode == appearanceMode.wrappedValue,
               ) {
                 appearanceMode.wrappedValue = mode
               }
