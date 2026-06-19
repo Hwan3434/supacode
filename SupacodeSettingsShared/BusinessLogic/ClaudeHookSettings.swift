@@ -57,9 +57,9 @@ private nonisolated struct ClaudeHooksPayload: Encodable {
         hooks: [.init(command: Self.awaitingInput, timeout: 5)]
       ),
     ],
-    "PostToolUse": [
-      .init(matcher: "", hooks: [.init(command: Self.idle, timeout: 5)])
-    ],
+    // "PostToolUse": [
+    //   .init(matcher: "", hooks: [.init(command: Self.idle, timeout: 5)])
+    // ],
     "Notification": [
       .init(matcher: "", hooks: [.init(command: Self.awaitingInputAndNotify, timeout: 10)])
     ],

@@ -461,13 +461,15 @@ private struct TrailingView: View {
     )
     let prText = display.pullRequestBadgeStyle?.text
     let agents = store.agents
+    let hasAwaitingAgent = agents.contains(where: { $0.activity == .awaitingInput })
     let scriptColors = store.runningScripts.map(\.tint)
     let showsNotificationIndicator = store.hasUnseenNotifications
     let notifications = Array(store.notifications)
     let added = store.addedLines ?? 0
     let removed = store.removedLines ?? 0
     let hasStats = added + removed > 0
-    let hasStatus = !scriptColors.isEmpty || showsNotificationIndicator
+    let shouldShowNotificationDot = showsNotificationIndicator && !hasAwaitingAgent
+    let hasStatus = !scriptColors.isEmpty || shouldShowNotificationDot
 
     // Cross-fade via opacity so flipping ⌘ doesn't snap the row.
     ZStack(alignment: .trailing) {
@@ -481,13 +483,20 @@ private struct TrailingView: View {
             .equatable()
         }
         if !agents.isEmpty {
-          RunningAgentsBadgeContent(agents: agents)
-            .equatable()
+          if showsNotificationIndicator && hasAwaitingAgent {
+            NotificationPopoverButton(notifications: notifications) {
+              RunningAgentsBadgeContent(agents: agents)
+                .equatable()
+            }
+          } else {
+            RunningAgentsBadgeContent(agents: agents)
+              .equatable()
+          }
         }
         if hasStatus {
           StatusIndicator(
             runningScriptColors: scriptColors,
-            showsNotificationIndicator: showsNotificationIndicator,
+            showsNotificationIndicator: shouldShowNotificationDot,
             notifications: notifications,
           )
           .equatable()

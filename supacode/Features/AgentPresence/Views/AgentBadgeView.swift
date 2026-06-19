@@ -40,7 +40,11 @@ struct AgentBadgeView: View {
                 .easeOut(duration: 1.2).repeatForever(autoreverses: false),
                 value: isPulsing
               )
-              .onAppear { isPulsing = true }
+              .onAppear {
+                DispatchQueue.main.async {
+                  isPulsing = true
+                }
+              }
               .onDisappear { isPulsing = false }
           }
         }
