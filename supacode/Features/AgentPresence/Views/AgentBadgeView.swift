@@ -60,14 +60,14 @@ struct AgentBadgeView: View {
                 DispatchQueue.main.async { isSpinning = true }
               }
               .onDisappear { isSpinning = false }
-          } else if activity == .awaitingInput && showsAwaitingIndicator {
+          } else if showsAwaitingIndicator {
             Circle()
               .stroke(Color.orange, lineWidth: 1.5)
               .scaleEffect(isPulsing ? 1.4 : 1.0)
               .opacity(isPulsing ? 0 : 0.6)
               .animation(
                 .easeOut(duration: 1.2).repeatForever(autoreverses: false),
-                value: isPulsing,
+                value: isPulsing
               )
               .onAppear {
                 DispatchQueue.main.async { isPulsing = true }

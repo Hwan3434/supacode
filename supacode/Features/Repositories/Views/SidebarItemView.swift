@@ -76,13 +76,6 @@ struct SidebarItemView: View {
       )
     }
     .labelStyle(.verticallyCentered)
-    .overlay {
-      if store.isTaskRunning {
-        RoundedRectangle(cornerRadius: 6)
-          .stroke(Color.accentColor, lineWidth: 2)
-          .padding(-4)
-      }
-    }
     .listRowInsets(.leading, CGFloat(nestDepth) * SidebarNestLayout.indentStep)
     .listRowInsets(.trailing, 4)
     .listRowInsets(.vertical, 6)
@@ -470,13 +463,14 @@ private struct TrailingView: View {
     let agents = store.agents
     let hasAwaitingAgent = agents.contains(where: { $0.activity == .awaitingInput })
     let scriptColors = store.runningScripts.map(\.tint)
+    let effectiveScriptColors = store.isTaskRunning && scriptColors.isEmpty ? [.blue] : scriptColors
     let showsNotificationIndicator = store.hasUnseenNotifications
     let notifications = Array(store.notifications)
     let added = store.addedLines ?? 0
     let removed = store.removedLines ?? 0
     let hasStats = added + removed > 0
     let shouldShowNotificationDot = showsNotificationIndicator && agents.isEmpty
-    let hasStatus = !scriptColors.isEmpty || shouldShowNotificationDot
+    let hasStatus = !effectiveScriptColors.isEmpty || shouldShowNotificationDot
 
     // Cross-fade via opacity so flipping ⌘ doesn't snap the row.
     ZStack(alignment: .trailing) {
@@ -502,7 +496,7 @@ private struct TrailingView: View {
         }
         if hasStatus {
           StatusIndicator(
-            runningScriptColors: scriptColors,
+            runningScriptColors: effectiveScriptColors,
             showsNotificationIndicator: shouldShowNotificationDot,
             notifications: notifications,
           )
