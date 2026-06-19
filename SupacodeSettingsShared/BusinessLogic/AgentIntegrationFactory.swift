@@ -14,7 +14,6 @@ nonisolated enum AgentIntegrationFactory {
     case .codex: codex(homeDirectoryURL: homeDirectoryURL, fileManager: fileManager)
     case .kiro: kiro(homeDirectoryURL: homeDirectoryURL, fileManager: fileManager)
     case .pi: pi(homeDirectoryURL: homeDirectoryURL, fileManager: fileManager)
-    case .antigravity: antigravity(homeDirectoryURL: homeDirectoryURL, fileManager: fileManager)
     }
   }
 
@@ -88,23 +87,6 @@ nonisolated enum AgentIntegrationFactory {
           uninstall: { try installer.uninstall() }
         ),
         skillComponent(agent: .pi, installer: skill),
-      ]
-    )
-  }
-
-  private static func antigravity(homeDirectoryURL: URL, fileManager: FileManager) -> AgentIntegration {
-    let skill = CLISkillInstaller()
-    let installer = AntigravitySettingsInstaller(homeDirectoryURL: homeDirectoryURL, fileManager: fileManager)
-    return AgentIntegration(
-      agent: .antigravity,
-      components: [
-        AgentIntegration.Component(
-          kind: .unifiedHooks,
-          state: { installer.installState() },
-          install: { try installer.installAllHooks() },
-          uninstall: { try installer.uninstallAllHooks() }
-        ),
-        skillComponent(agent: .antigravity, installer: skill),
       ]
     )
   }

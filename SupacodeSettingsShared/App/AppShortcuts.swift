@@ -105,31 +105,31 @@ public nonisolated enum AppShortcutID: Codable, Hashable, Sendable, CodingKeyRep
   // Human-readable name for display in settings and tooltips.
   public var displayName: String {
     switch self {
-    case .commandPalette: "Command Palette"
-    case .openSettings: "Open Settings"
-    case .checkForUpdates: "Check For Updates"
-    case .showMainWindow: "Show Main Window"
-    case .toggleLeftSidebar: "Toggle Left Sidebar"
-    case .revealInSidebar: "Reveal in Sidebar"
-    case .newWorktree: "New Worktree"
-    case .refreshWorktrees: "Refresh Worktrees"
-    case .archivedWorktrees: "Archived Worktrees"
-    case .archiveWorktree: "Archive Worktree"
-    case .deleteWorktree: "Delete Worktree"
-    case .confirmWorktreeAction: "Confirm Worktree Action"
-    case .selectNextWorktree: "Select Next Worktree"
-    case .selectPreviousWorktree: "Select Previous Worktree"
-    case .worktreeHistoryBack: "Back in Worktree History"
-    case .worktreeHistoryForward: "Forward in Worktree History"
-    case .selectWorktree(let index): "Select Worktree \(index == 0 ? 10 : index)"
-    case .openWorktree: "Open Worktree"
-    case .revealInFinder: "Reveal in Finder"
-    case .openRepository: "Open Repository or Folder"
-    case .openPullRequest: "Open Pull Request"
-    case .copyPath: "Copy Path"
-    case .runScript: "Run Script"
-    case .stopRunScript: "Stop Run Script"
-    case .jumpToLatestUnread: "Jump to Latest Unread"
+    case .commandPalette: "명령 팔레트"
+    case .openSettings: "설정 열기"
+    case .checkForUpdates: "업데이트 확인"
+    case .showMainWindow: "메인 창 보기"
+    case .toggleLeftSidebar: "좌측 사이드바 켜기/끄기"
+    case .revealInSidebar: "사이드바에서 표시"
+    case .newWorktree: "새 워크트리"
+    case .refreshWorktrees: "워크트리 새로고침"
+    case .archivedWorktrees: "보관된 워크트리"
+    case .archiveWorktree: "워크트리 보관"
+    case .deleteWorktree: "워크트리 삭제"
+    case .confirmWorktreeAction: "워크트리 작업 확인"
+    case .selectNextWorktree: "다음 워크트리 선택"
+    case .selectPreviousWorktree: "이전 워크트리 선택"
+    case .worktreeHistoryBack: "워크트리 히스토리 뒤로"
+    case .worktreeHistoryForward: "워크트리 히스토리 앞으로"
+    case .selectWorktree(let index): "워크트리 선택 \(index == 0 ? 10 : index)"
+    case .openWorktree: "워크트리 열기"
+    case .revealInFinder: "Finder에서 보기"
+    case .openRepository: "저장소 또는 폴더 열기"
+    case .openPullRequest: "Pull Request 열기"
+    case .copyPath: "경로 복사"
+    case .runScript: "스크립트 실행"
+    case .stopRunScript: "실행 중인 스크립트 중지"
+    case .jumpToLatestUnread: "가장 최근 안 읽은 항목으로 이동"
     }
   }
 }
@@ -241,11 +241,11 @@ public enum AppShortcutCategory: String, CaseIterable, Sendable {
 
   public var displayName: String {
     switch self {
-    case .general: "General"
-    case .sidebar: "Sidebar"
-    case .worktrees: "Worktrees"
-    case .worktreeSelection: "Worktree Selection"
-    case .actions: "Actions"
+    case .general: "일반"
+    case .sidebar: "사이드바"
+    case .worktrees: "워크트리"
+    case .worktreeSelection: "워크트리 선택"
+    case .actions: "액션"
     }
   }
 }
