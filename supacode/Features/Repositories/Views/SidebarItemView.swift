@@ -486,11 +486,19 @@ private struct TrailingView: View {
         if !agents.isEmpty {
           if showsNotificationIndicator {
             NotificationPopoverButton(notifications: notifications) {
-              RunningAgentsBadgeContent(agents: agents, showsAwaitingIndicator: hasAwaitingAgent)
+              RunningAgentsBadgeContent(
+                agents: agents,
+                showsAwaitingIndicator: hasAwaitingAgent,
+                showsUnreadIndicator: true
+              )
                 .equatable()
             }
           } else {
-            RunningAgentsBadgeContent(agents: agents, showsAwaitingIndicator: false)
+            RunningAgentsBadgeContent(
+              agents: agents,
+              showsAwaitingIndicator: false,
+              showsUnreadIndicator: false
+            )
               .equatable()
           }
         }
@@ -531,14 +539,25 @@ private struct PullRequestBadgeContent: View, Equatable {
 private struct RunningAgentsBadgeContent: View, Equatable {
   let agents: [AgentPresenceFeature.AgentInstance]
   let showsAwaitingIndicator: Bool
+  let showsUnreadIndicator: Bool
 
-  init(agents: [AgentPresenceFeature.AgentInstance], showsAwaitingIndicator: Bool = true) {
+  init(
+    agents: [AgentPresenceFeature.AgentInstance],
+    showsAwaitingIndicator: Bool = true,
+    showsUnreadIndicator: Bool = false
+  ) {
     self.agents = agents
     self.showsAwaitingIndicator = showsAwaitingIndicator
+    self.showsUnreadIndicator = showsUnreadIndicator
   }
 
   var body: some View {
-    AgentAvatarGroupView(instances: agents, size: 16, showsAwaitingIndicator: showsAwaitingIndicator)
+    AgentAvatarGroupView(
+      instances: agents,
+      size: 16,
+      showsAwaitingIndicator: showsAwaitingIndicator,
+      showsUnreadIndicator: showsUnreadIndicator
+    )
   }
 }
 

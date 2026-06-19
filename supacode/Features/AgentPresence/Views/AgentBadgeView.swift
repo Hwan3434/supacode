@@ -10,6 +10,7 @@ struct AgentBadgeView: View {
   let size: CGFloat
   let activity: AgentPresenceFeature.Activity
   let showsAwaitingIndicator: Bool
+  let showsUnreadIndicator: Bool
   @Environment(\.pixelLength) private var pixelLength
 
   @State private var isSpinning = false
@@ -20,11 +21,13 @@ struct AgentBadgeView: View {
     size: CGFloat = 14,
     activity: AgentPresenceFeature.Activity = .idle,
     showsAwaitingIndicator: Bool = true,
+    showsUnreadIndicator: Bool = false
   ) {
     self.agent = agent
     self.size = size
     self.activity = activity
     self.showsAwaitingIndicator = showsAwaitingIndicator
+    self.showsUnreadIndicator = showsUnreadIndicator
   }
 
   var body: some View {
@@ -75,6 +78,14 @@ struct AgentBadgeView: View {
               .onDisappear { isPulsing = false }
           }
         }
+      
+      if showsUnreadIndicator && activity != .awaitingInput {
+        Circle()
+          .fill(Color.orange)
+          .frame(width: size * 0.4, height: size * 0.4)
+          .overlay(Circle().strokeBorder(.background, lineWidth: 1))
+          .offset(x: size * 0.1, y: -size * 0.1)
+      }
     }
   }
 

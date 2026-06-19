@@ -17,17 +17,20 @@ struct AgentAvatarGroupView: View {
   let size: CGFloat
   let maxVisible: Int
   let showsAwaitingIndicator: Bool
+  let showsUnreadIndicator: Bool
 
   init(
     instances: [AgentPresenceFeature.AgentInstance],
     size: CGFloat = 14,
     maxVisible: Int = 3,
     showsAwaitingIndicator: Bool = true,
+    showsUnreadIndicator: Bool = false
   ) {
     self.instances = instances
     self.size = size
     self.maxVisible = maxVisible
     self.showsAwaitingIndicator = showsAwaitingIndicator
+    self.showsUnreadIndicator = showsUnreadIndicator
   }
 
   /// Convenience for static lineups (e.g. the sidebar setup card showing
@@ -79,6 +82,7 @@ struct AgentAvatarGroupView: View {
               size: size,
               activity: slot.activity,
               showsAwaitingIndicator: showsAwaitingIndicator,
+              showsUnreadIndicator: showsUnreadIndicator
             )
             .zIndex(slot.zIndex)
           }
