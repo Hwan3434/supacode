@@ -486,11 +486,11 @@ private struct TrailingView: View {
         if !agents.isEmpty {
           if showsNotificationIndicator {
             NotificationPopoverButton(notifications: notifications) {
-              RunningAgentsBadgeContent(agents: agents, showsAwaitingIndicator: true)
+              RunningAgentsBadgeContent(agents: agents, showsAwaitingIndicator: hasAwaitingAgent)
                 .equatable()
             }
           } else {
-            RunningAgentsBadgeContent(agents: agents, showsAwaitingIndicator: hasAwaitingAgent)
+            RunningAgentsBadgeContent(agents: agents, showsAwaitingIndicator: false)
               .equatable()
           }
         }
