@@ -1424,7 +1424,8 @@ final class WorktreeTerminalState {
     }
     view.bridge.onNewTab = { [weak self, weak view] in
       guard let self, let view else { return false }
-      return self.createTab(inheritingFromSurfaceId: view.id) != nil
+      // 탭 기능이 제거되었으므로, Cmd+T 등 Ghostty 내부 액션에 의한 새 탭(고아 탭) 생성을 차단합니다.
+      return false
     }
     view.bridge.onCloseTab = { [weak self] _ in
       guard let self else { return false }
