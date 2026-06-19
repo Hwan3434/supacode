@@ -35,7 +35,7 @@ struct AgentBadgeView: View {
         .accessibilityLabel(agent.displayName)
         .padding(size * 0.18)
         .frame(width: size, height: size)
-        .foregroundStyle(.white)
+        .foregroundStyle(.primary)
         .background(.bar.shadow(Self.dropShadow), in: .circle)
         .overlay(Circle().strokeBorder(.separator, lineWidth: pixelLength))
         .overlay {
@@ -60,7 +60,7 @@ struct AgentBadgeView: View {
                 DispatchQueue.main.async { isSpinning = true }
               }
               .onDisappear { isSpinning = false }
-          } else if showsAwaitingIndicator {
+          } else if activity == .awaitingInput && showsAwaitingIndicator {
             Circle()
               .stroke(Color.orange, lineWidth: 1.5)
               .scaleEffect(isPulsing ? 1.4 : 1.0)
