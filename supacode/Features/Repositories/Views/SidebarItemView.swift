@@ -76,6 +76,11 @@ struct SidebarItemView: View {
       )
     }
     .labelStyle(.verticallyCentered)
+    .overlay(alignment: .bottom) {
+      if store.isTaskRunning {
+        TaskProgressLineOverlay()
+      }
+    }
     .listRowInsets(.leading, CGFloat(nestDepth) * SidebarNestLayout.indentStep)
     .listRowInsets(.trailing, 4)
     .listRowInsets(.vertical, 6)
@@ -632,5 +637,32 @@ private nonisolated let notificationEnvironmentLogger = SupaLogger("Notification
 extension EnvironmentValues {
   @Entry var focusNotificationAction: (WorktreeTerminalNotification) -> Void = { _ in
     notificationEnvironmentLogger.warning("focusNotificationAction called but was never set in the environment.")
+  }
+}
+
+private struct TaskProgressLineOverlay: View {
+  @State private var phase: CGFloat = 0
+
+  var body: some View {
+    Rectangle()
+      .fill(
+        LinearGradient(
+          stops: [
+            .init(color: .clear, location: 0),
+            .init(color: Color.accentColor, location: 0.5),
+            .init(color: .clear, location: 1)
+          ],
+          startPoint: UnitPoint(x: -1 + phase, y: 0),
+          endPoint: UnitPoint(x: 0 + phase, y: 0)
+        )
+      )
+      .frame(height: 1)
+      .clipped()
+      .animation(.linear(duration: 1.5).repeatForever(autoreverses: false), value: phase)
+      .onAppear {
+        DispatchQueue.main.async {
+          phase = 2.0
+        }
+      }
   }
 }
