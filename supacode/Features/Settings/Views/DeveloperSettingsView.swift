@@ -182,7 +182,6 @@ extension SkillAgent {
       """
     case .kiro: "`~/.kiro/agents/`의 훅 및 `~/.kiro/skills/`의 스킬."
     case .pi: "`~/.pi/agent/extensions/`의 익스텐션 및 `~/.pi/agent/skills/`의 스킬."
-    case .antigravity: "`~/.gemini/config/AGENTS.md`의 훅 규칙 및 `~/.gemini/config/skills/`의 스킬."
     }
   }
 }

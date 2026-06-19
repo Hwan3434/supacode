@@ -11,7 +11,6 @@ struct CodingAgentsSidebarCardModeTests {
       .codex: .ready(.outdated),
       .kiro: .ready(.outdated),
       .pi: .ready(.notInstalled),
-      .antigravity: .ready(.notInstalled),
     ]
     let mode = CodingAgentsSidebarCardView.mode(for: states, dismissed: false, autoUpdateEnabled: false)
     guard case .updatesAvailable(let agents) = mode else {
@@ -27,7 +26,6 @@ struct CodingAgentsSidebarCardModeTests {
       .codex: .ready(.installed),
       .kiro: .ready(.installed),
       .pi: .ready(.installed),
-      .antigravity: .ready(.installed),
     ]
     let mode = CodingAgentsSidebarCardView.mode(for: states, dismissed: true, autoUpdateEnabled: false)
     #expect(mode == .updatesAvailable([.claude]))
@@ -39,7 +37,6 @@ struct CodingAgentsSidebarCardModeTests {
       .codex: .ready(.notInstalled),
       .kiro: .ready(.notInstalled),
       .pi: .ready(.notInstalled),
-      .antigravity: .ready(.notInstalled),
     ]
     #expect(CodingAgentsSidebarCardView.mode(for: states, dismissed: false, autoUpdateEnabled: false) == .hidden)
   }
@@ -50,7 +47,6 @@ struct CodingAgentsSidebarCardModeTests {
       .codex: .ready(.notInstalled),
       .kiro: .ready(.notInstalled),
       .pi: .ready(.notInstalled),
-      .antigravity: .ready(.notInstalled),
     ]
     #expect(CodingAgentsSidebarCardView.mode(for: states, dismissed: true, autoUpdateEnabled: false) == .hidden)
   }
@@ -61,7 +57,6 @@ struct CodingAgentsSidebarCardModeTests {
       .codex: .ready(.notInstalled),
       .kiro: .ready(.notInstalled),
       .pi: .ready(.notInstalled),
-      .antigravity: .ready(.notInstalled),
     ]
     #expect(CodingAgentsSidebarCardView.mode(for: states, dismissed: false, autoUpdateEnabled: false) == .promptInstall)
   }
@@ -72,7 +67,6 @@ struct CodingAgentsSidebarCardModeTests {
       .codex: .checking,
       .kiro: .ready(.notInstalled),
       .pi: .ready(.notInstalled),
-      .antigravity: .ready(.notInstalled),
     ]
     #expect(CodingAgentsSidebarCardView.mode(for: states, dismissed: false, autoUpdateEnabled: false) == .hidden)
   }
@@ -85,7 +79,6 @@ struct CodingAgentsSidebarCardModeTests {
       .codex: .installing,
       .kiro: .ready(.notInstalled),
       .pi: .ready(.notInstalled),
-      .antigravity: .ready(.notInstalled),
     ]
     #expect(CodingAgentsSidebarCardView.mode(for: states, dismissed: false, autoUpdateEnabled: false) == .hidden)
   }
@@ -98,7 +91,6 @@ struct CodingAgentsSidebarCardModeTests {
       .codex: .uninstalling,
       .kiro: .ready(.notInstalled),
       .pi: .ready(.notInstalled),
-      .antigravity: .ready(.notInstalled),
     ]
     #expect(CodingAgentsSidebarCardView.mode(for: states, dismissed: false, autoUpdateEnabled: false) == .hidden)
   }
@@ -112,7 +104,6 @@ struct CodingAgentsSidebarCardModeTests {
       .codex: .failed("boom"),
       .kiro: .ready(.notInstalled),
       .pi: .ready(.notInstalled),
-      .antigravity: .ready(.notInstalled),
     ]
     #expect(CodingAgentsSidebarCardView.mode(for: states, dismissed: false, autoUpdateEnabled: false) == .promptInstall)
   }
@@ -126,7 +117,6 @@ struct CodingAgentsSidebarCardModeTests {
       .codex: .ready(.installed),
       .kiro: .ready(.installed),
       .pi: .ready(.installed),
-      .antigravity: .ready(.installed),
     ]
     #expect(
       CodingAgentsSidebarCardView.mode(for: outdated, dismissed: false, autoUpdateEnabled: true) == .hidden
@@ -137,7 +127,6 @@ struct CodingAgentsSidebarCardModeTests {
       .codex: .ready(.notInstalled),
       .kiro: .ready(.notInstalled),
       .pi: .ready(.notInstalled),
-      .antigravity: .ready(.notInstalled),
     ]
     #expect(
       CodingAgentsSidebarCardView.mode(for: untouched, dismissed: false, autoUpdateEnabled: true) == .promptInstall
