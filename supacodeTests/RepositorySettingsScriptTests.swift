@@ -305,6 +305,35 @@ struct RepositorySettingsScriptTests {
     }
   }
 
+  @Test(.dependencies) func rapidBindingEditsCoalesceToSinglePersist() async {
+    let clock = TestClock()
+    let store = TestStore(
+      initialState: RepositorySettingsFeature.State(rootURL: Self.rootURL, settings: .default)
+    ) {
+      RepositorySettingsFeature()
+    } withDependencies: {
+      $0.continuousClock = clock
+    }
+
+    // Three rapid edits inside the 300ms window: each cancels the prior pending
+    // persist (cancelInFlight), so the persist + delegate fires exactly once.
+    await store.send(.binding(.set(\.defaultWorktreeBaseRef, "origin/a"))) {
+      $0.defaultWorktreeBaseRef = "origin/a"
+    }
+    await clock.advance(by: .milliseconds(100))
+    await store.send(.binding(.set(\.defaultWorktreeBaseRef, "origin/ab"))) {
+      $0.defaultWorktreeBaseRef = "origin/ab"
+    }
+    await clock.advance(by: .milliseconds(100))
+    await store.send(.binding(.set(\.defaultWorktreeBaseRef, "origin/abc"))) {
+      $0.defaultWorktreeBaseRef = "origin/abc"
+    }
+
+    await clock.advance(by: .milliseconds(300))
+    await store.receive(\.persistSettings)
+    await store.receive(\.delegate.settingsChanged)
+  }
+
   @Test(.dependencies) func addScriptAppendsCustomScript() async {
     let store = makeStore()
     store.exhaustivity = .off(showSkippedAssertions: false)

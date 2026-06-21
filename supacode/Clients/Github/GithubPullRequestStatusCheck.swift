@@ -140,7 +140,7 @@ nonisolated struct PullRequestCheckBreakdown: Equatable {
     if expected > 0 {
       parts.append("\(expected) expected")
     }
-    if total > 0 {
+    if passed > 0 {
       parts.append("\(passed) successful")
     }
     if parts.isEmpty {

@@ -413,4 +413,17 @@ extension AgentPresenceFeature.State {
       entry.value.activity == .busy && surfaceSet.contains(entry.key.surfaceID)
     }
   }
+
+  /// Any agent on the listed surfaces holds work that would NOT survive a quit:
+  /// `.busy` (mid tool-call) or `.awaitingInput` (parked on a user prompt).
+  /// `.error` and `.idle` are excluded — neither is live, persistable work.
+  /// Deliberately NOT badge-gated: this backs the quit-confirmation safety gate,
+  /// which must stay correct regardless of the agent-avatar display preference.
+  func hasWorkBlockingQuit(in surfaceIDs: some Sequence<UUID>) -> Bool {
+    let surfaceSet = Set(surfaceIDs)
+    return records.contains { entry in
+      surfaceSet.contains(entry.key.surfaceID)
+        && (entry.value.activity == .busy || entry.value.activity == .awaitingInput)
+    }
+  }
 }

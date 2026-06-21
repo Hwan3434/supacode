@@ -181,6 +181,9 @@ public struct SettingsFeature {
     case repositorySettings(RepositorySettingsFeature.Action)
     case addGlobalScript
     case removeGlobalScript(ScriptDefinition.ID)
+    /// Debounced commit of `.binding` edits: persists to disk + fires the
+    /// settings-changed delegate once typing settles, instead of per keystroke.
+    case persistSettings
     case alert(PresentationAction<Alert>)
     case delegate(Delegate)
     case binding(BindingAction<State>)
@@ -204,6 +207,9 @@ public struct SettingsFeature {
   @Dependency(ArchivedWorktreeDatesClient.self) private var archivedWorktreeDatesClient
   @Dependency(SystemNotificationClient.self) private var systemNotificationClient
   @Dependency(\.date.now) private var now
+  @Dependency(\.continuousClock) private var clock
+
+  nonisolated enum CancelID: Hashable, Sendable { case persistDebounce }
 
   public init() {}
 
@@ -296,6 +302,17 @@ public struct SettingsFeature {
 
       case .binding:
         state.syncGlobalDefaults(from: state.globalSettings)
+        // Coalesce rapid edits (text-field typing) so the full persist +
+        // settings-changed cascade fires once typing settles, not per keystroke.
+        // In-memory state already updated synchronously above, so the UI stays
+        // immediate; only disk persistence + downstream side-effects debounce.
+        return .run { [clock] send in
+          try await clock.sleep(for: .milliseconds(300))
+          await send(.persistSettings)
+        }
+        .cancellable(id: CancelID.persistDebounce, cancelInFlight: true)
+
+      case .persistSettings:
         return persist(state)
 
       case .setSystemNotificationsEnabled(let isEnabled):

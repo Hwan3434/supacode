@@ -249,6 +249,14 @@ final class AgentHookSocketServer {
       return nil
     }
 
+    // Suppress SIGPIPE on this socket: if the client closes before we write the
+    // response (e.g. the CLI was Ctrl-C'd), a bare `write()` would otherwise
+    // raise SIGPIPE whose default disposition terminates the whole app. Best
+    // effort — a failure here is non-fatal.
+    var noSigPipe: Int32 = 1
+    _ = setsockopt(
+      clientFD, SOL_SOCKET, SO_NOSIGPIPE, &noSigPipe, socklen_t(MemoryLayout<Int32>.size))
+
     // Set a read timeout so a misbehaving client cannot block the accept loop.
     var timeout = timeval(tv_sec: 5, tv_usec: 0)
     guard

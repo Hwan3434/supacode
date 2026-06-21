@@ -75,6 +75,9 @@ public struct RepositorySettingsFeature {
     case branchDataLoaded([String], defaultBaseRef: String)
     case addScript(ScriptKind)
     case removeScript(ScriptDefinition.ID)
+    /// Debounced commit of `.binding` edits: persists + notifies once typing
+    /// settles, instead of per keystroke.
+    case persistSettings
     case alert(PresentationAction<Alert>)
     case delegate(Delegate)
     case binding(BindingAction<State>)
@@ -86,6 +89,9 @@ public struct RepositorySettingsFeature {
   }
 
   @Dependency(RepositorySettingsGitClient.self) private var gitClient
+  @Dependency(\.continuousClock) private var clock
+
+  nonisolated enum CancelID: Hashable, Sendable { case persistDebounce }
 
   public init() {}
 
@@ -232,6 +238,16 @@ public struct RepositorySettingsFeature {
           state.settings.copyIgnoredOnWorktreeCreate = nil
           state.settings.copyUntrackedOnWorktreeCreate = nil
         }
+        // Coalesce rapid edits (text-field typing) so the persist + delegate
+        // fires once typing settles, not per keystroke. State already mutated
+        // synchronously above, so the UI stays immediate.
+        return .run { [clock] send in
+          try await clock.sleep(for: .milliseconds(300))
+          await send(.persistSettings)
+        }
+        .cancellable(id: CancelID.persistDebounce, cancelInFlight: true)
+
+      case .persistSettings:
         return persistAndNotify(state: &state)
 
       case .delegate:

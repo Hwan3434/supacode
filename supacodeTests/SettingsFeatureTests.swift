@@ -88,8 +88,11 @@ struct SettingsFeatureTests {
     @Shared(.settingsFile) var settingsFile
     $settingsFile.withLock { $0.global = initialSettings }
 
+    let clock = TestClock()
     let store = TestStore(initialState: SettingsFeature.State(settings: initialSettings)) {
       SettingsFeature()
+    } withDependencies: {
+      $0.continuousClock = clock
     }
 
     await store.send(.binding(.set(\.appearanceMode, .light))) {
@@ -112,9 +115,38 @@ struct SettingsFeatureTests {
       mergedWorktreeAction: initialSettings.mergedWorktreeAction,
       promptForWorktreeCreation: initialSettings.promptForWorktreeCreation,
     )
+    await clock.advance(by: .milliseconds(300))
+    await store.receive(\.persistSettings)
     await store.receive(\.delegate.settingsChanged)
 
     expectNoDifference(settingsFile.global, expectedSettings)
+  }
+
+  @Test(.dependencies) func rapidBindingEditsCoalesceToSinglePersist() async {
+    @Shared(.settingsFile) var settingsFile
+    $settingsFile.withLock { $0.global = .default }
+
+    let clock = TestClock()
+    let store = TestStore(initialState: SettingsFeature.State(settings: .default)) {
+      SettingsFeature()
+    } withDependencies: {
+      $0.continuousClock = clock
+    }
+
+    // Three rapid edits inside the 300ms window: each cancels the prior pending
+    // persist (cancelInFlight), so the persist + delegate cascade fires exactly
+    // once after typing settles — not once per keystroke.
+    await store.send(.binding(.set(\.appearanceMode, .light))) { $0.appearanceMode = .light }
+    await clock.advance(by: .milliseconds(100))
+    await store.send(.binding(.set(\.appearanceMode, .system))) { $0.appearanceMode = .system }
+    await clock.advance(by: .milliseconds(100))
+    await store.send(.binding(.set(\.appearanceMode, .dark))) { $0.appearanceMode = .dark }
+
+    await clock.advance(by: .milliseconds(300))
+    await store.receive(\.persistSettings)
+    await store.receive(\.delegate.settingsChanged)
+
+    #expect(settingsFile.global.appearanceMode == .dark)
   }
 
   @Test(.dependencies) func setSystemNotificationsEnabledPersistsChanges() async {
@@ -288,14 +320,19 @@ struct SettingsFeatureTests {
       rootURL: rootURL,
       settings: .default,
     )
+    let clock = TestClock()
     let store = TestStore(initialState: state) {
       SettingsFeature()
+    } withDependencies: {
+      $0.continuousClock = clock
     }
 
     await store.send(.binding(.set(\.defaultWorktreeBaseDirectoryPath, " ~/worktrees "))) {
       $0.defaultWorktreeBaseDirectoryPath = " ~/worktrees "
       $0.repositorySettings?.globalDefaultWorktreeBaseDirectoryPath = expectedPath
     }
+    await clock.advance(by: .milliseconds(300))
+    await store.receive(\.persistSettings)
     await store.receive(\.delegate.settingsChanged)
     #expect(store.state.repositorySettings?.globalDefaultWorktreeBaseDirectoryPath == expectedPath)
     #expect(settingsFile.global.defaultWorktreeBaseDirectoryPath == expectedPath)
@@ -310,14 +347,19 @@ struct SettingsFeatureTests {
       rootURL: rootURL,
       settings: .default,
     )
+    let clock = TestClock()
     let store = TestStore(initialState: state) {
       SettingsFeature()
+    } withDependencies: {
+      $0.continuousClock = clock
     }
 
     await store.send(.binding(.set(\.copyIgnoredOnWorktreeCreate, true))) {
       $0.copyIgnoredOnWorktreeCreate = true
       $0.repositorySettings?.globalCopyIgnoredOnWorktreeCreate = true
     }
+    await clock.advance(by: .milliseconds(300))
+    await store.receive(\.persistSettings)
     await store.receive(\.delegate.settingsChanged)
     #expect(store.state.repositorySettings?.globalCopyIgnoredOnWorktreeCreate == true)
     #expect(settingsFile.global.copyIgnoredOnWorktreeCreate == true)
@@ -332,14 +374,19 @@ struct SettingsFeatureTests {
       rootURL: rootURL,
       settings: .default,
     )
+    let clock = TestClock()
     let store = TestStore(initialState: state) {
       SettingsFeature()
+    } withDependencies: {
+      $0.continuousClock = clock
     }
 
     await store.send(.binding(.set(\.pullRequestMergeStrategy, .squash))) {
       $0.pullRequestMergeStrategy = .squash
       $0.repositorySettings?.globalPullRequestMergeStrategy = .squash
     }
+    await clock.advance(by: .milliseconds(300))
+    await store.receive(\.persistSettings)
     await store.receive(\.delegate.settingsChanged)
     #expect(store.state.repositorySettings?.globalPullRequestMergeStrategy == .squash)
     #expect(settingsFile.global.pullRequestMergeStrategy == .squash)

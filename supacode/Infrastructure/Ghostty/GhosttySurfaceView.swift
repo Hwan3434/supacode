@@ -57,7 +57,10 @@ final class GhosttySurfaceView: NSView, Identifiable {
       let fetched = fetch()
       value = fetched
       expiryTask?.cancel()
-      expiryTask = Task { [weak self] in
+      // Hop the expiry mutation onto the main actor so it serializes with
+      // `get()` (called from the main-thread accessibility overrides) instead of
+      // racing it on the global executor.
+      expiryTask = Task { @MainActor [weak self] in
         guard let self else { return }
         try? await ContinuousClock().sleep(for: self.duration)
         guard !Task.isCancelled else { return }
@@ -1818,6 +1821,10 @@ extension GhosttySurfaceView: NSServicesMenuRequestor {
 
   func readSelection(from pboard: NSPasteboard) -> Bool {
     guard let str = pboard.getOpinionatedStringContents() else { return false }
+    guard let surface else {
+      surfaceLogger.warning("readSelection: surface not available, dropping \(str.count) chars.")
+      return false
+    }
     let len = str.utf8CString.count
     if len == 0 { return true }
     str.withCString { ptr in

@@ -591,12 +591,13 @@ struct GitClient {
   }
 
   nonisolated func branchName(for worktreeURL: URL) async -> String? {
-    let headURL = await MainActor.run {
-      GitWorktreeHeadResolver.headURL(
-        for: worktreeURL,
-        fileManager: .default,
-      )
-    }
+    // `GitWorktreeHeadResolver` is a non-isolated enum doing plain synchronous
+    // file reads, so resolve it directly in this nonisolated async context
+    // rather than hopping the disk I/O onto the main actor.
+    let headURL = GitWorktreeHeadResolver.headURL(
+      for: worktreeURL,
+      fileManager: .default,
+    )
     guard let headURL else {
       return nil
     }
@@ -638,12 +639,13 @@ struct GitClient {
   }
 
   nonisolated private func isWorktreeIndexLocked(_ worktreeURL: URL) async -> Bool {
-    let headURL = await MainActor.run {
-      GitWorktreeHeadResolver.headURL(
-        for: worktreeURL,
-        fileManager: .default,
-      )
-    }
+    // `GitWorktreeHeadResolver` is a non-isolated enum doing plain synchronous
+    // file reads, so resolve it directly in this nonisolated async context
+    // rather than hopping the disk I/O onto the main actor.
+    let headURL = GitWorktreeHeadResolver.headURL(
+      for: worktreeURL,
+      fileManager: .default,
+    )
     guard let headURL else {
       return false
     }

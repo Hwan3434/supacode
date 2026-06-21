@@ -1,7 +1,11 @@
 import Foundation
 
 enum GitWorktreeHeadResolver {
-  static func headURL(for worktreeURL: URL, fileManager: FileManager) -> URL? {
+  /// `nonisolated` so the synchronous file probing can run off the main actor.
+  /// The module defaults to main-actor isolation, which would otherwise force
+  /// callers like `GitClient.branchName` (a `nonisolated` async hot path on the
+  /// worktree-refresh tick) to hop the disk I/O onto the main actor.
+  nonisolated static func headURL(for worktreeURL: URL, fileManager: FileManager) -> URL? {
     let gitURL = worktreeURL.appending(path: ".git")
     var isDirectory = ObjCBool(false)
     guard

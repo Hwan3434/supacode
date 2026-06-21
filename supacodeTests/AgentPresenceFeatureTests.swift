@@ -597,6 +597,40 @@ struct AgentPresenceFeatureTests {
     #expect(harness.state.hasActivity(in: [surfaceID]) == false)
   }
 
+  // MARK: - hasWorkBlockingQuit.
+
+  @Test func hasWorkBlockingQuitForBusyAndAwaiting() {
+    var harness = Harness()
+    let busy = UUID()
+    let awaiting = UUID()
+
+    harness.send(.hookEventReceived(makeEvent(.sessionStart, agent: .claude, surfaceID: busy, pid: getpid())))
+    harness.send(.hookEventReceived(makeEvent(.busy, agent: .claude, surfaceID: busy)))
+    harness.send(.hookEventReceived(makeEvent(.sessionStart, agent: .codex, surfaceID: awaiting, pid: getpid())))
+    harness.send(.hookEventReceived(makeEvent(.awaitingInput, agent: .codex, surfaceID: awaiting)))
+
+    #expect(harness.state.hasWorkBlockingQuit(in: [busy]) == true)
+    #expect(harness.state.hasWorkBlockingQuit(in: [awaiting]) == true)
+    #expect(harness.state.hasWorkBlockingQuit(in: [UUID()]) == false)
+  }
+
+  @Test func hasWorkBlockingQuitFalseForIdleAndError() {
+    // Quit must not be blocked by an idle (persistable) or errored agent —
+    // only live mid-work (busy / awaiting-input) is at risk. This is a safety
+    // gate independent of the agent-badge display preference, so it is not
+    // badge-gated.
+    var harness = Harness()
+    let idle = UUID()
+    let errored = UUID()
+
+    harness.send(.hookEventReceived(makeEvent(.sessionStart, agent: .claude, surfaceID: idle, pid: getpid())))
+    harness.send(.hookEventReceived(makeEvent(.sessionStart, agent: .claude, surfaceID: errored, pid: getpid())))
+    harness.send(.hookEventReceived(makeEvent(.error, agent: .claude, surfaceID: errored)))
+
+    #expect(harness.state.hasWorkBlockingQuit(in: [idle]) == false)
+    #expect(harness.state.hasWorkBlockingQuit(in: [errored]) == false)
+  }
+
   // MARK: - Settings gate.
 
   @Test func badgesGateSuppressesPerSurfaceAndAcrossAccessors() {

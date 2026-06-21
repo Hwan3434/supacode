@@ -220,9 +220,9 @@ struct AppFeature {
             // card reflects external installs (e.g. `claude install`)
             // for users who keep the app open across days.
             .send(.settings(.refreshAgentIntegrationStates)),
-            .run { send in
+            .run { [clock] send in
               while !Task.isCancelled {
-                try? await ContinuousClock().sleep(for: .seconds(30))
+                try? await clock.sleep(for: .seconds(30))
                 guard !Task.isCancelled else { return }
                 await send(.repositories(.refreshWorktrees))
               }
@@ -1858,17 +1858,21 @@ struct AppFeature {
     return .run { _ in await terminalClient.send(cmd) }
   }
 
-  /// True when in-flight work would not survive a quit. Steady-state
-  /// `.idle` agents are intentionally excluded since persisting them is the
-  /// whole reason zmx wraps the shell; only mid-tool-call (`.busy`) and
-  /// prompt-waiting (`.awaitingInput`) agents are at risk. Running user
-  /// scripts also block because their stdout history dies with the shell.
+  /// True when in-flight work would not survive a quit. Steady-state `.idle`
+  /// agents are intentionally excluded since persisting them is the whole reason
+  /// zmx wraps the shell; `.error` is likewise excluded (the agent isn't actively
+  /// working). Only mid-tool-call (`.busy`) and prompt-waiting (`.awaitingInput`)
+  /// agents are at risk. Running user scripts also block because their stdout
+  /// history dies with the shell. The agent check reads `agentPresence` directly
+  /// rather than the badge-gated `item.agents`, so disabling the agent-badge
+  /// display preference can't silently disable this quit-confirmation safety gate.
   private func hasActiveWorkBlockingQuit(state: State) -> Bool {
     if terminalClient.hasInflightBlockingScripts() { return true }
+    let presence = state.agentPresence
     return state.repositories.sidebarItems.contains { item in
       if item.lifecycle.isTerminating || item.lifecycle == .pending { return true }
       if !item.runningScripts.isEmpty { return true }
-      return item.agents.contains { $0.activity != .idle }
+      return presence.hasWorkBlockingQuit(in: item.surfaceIDs)
     }
   }
 
