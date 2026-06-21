@@ -88,8 +88,6 @@ private struct SettingsSidebarView: View {
         .tag(SettingsSection.worktree)
       Label("개발자", systemImage: "hammer")
         .tag(SettingsSection.developer)
-      Label("업데이트", systemImage: "arrow.down.circle")
-        .tag(SettingsSection.updates)
       Label("GitHub", image: "github-mark")
         .tag(SettingsSection.github)
       Label("단축키", systemImage: "keyboard")
