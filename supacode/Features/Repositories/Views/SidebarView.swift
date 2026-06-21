@@ -10,26 +10,13 @@ struct SidebarView: View {
 
   var body: some View {
     let state = store.state
-    let effectiveSelectedRows = state.effectiveSidebarSelectedRows
     let confirmAlert = state.confirmWorktreeAlert
-    let archiveTargets =
-      effectiveSelectedRows
-      .filter { $0.lifecycle == .idle && !$0.isMainWorktree }
-      .map {
-        RepositoriesFeature.ArchiveWorktreeTarget(
-          worktreeID: $0.id,
-          repositoryID: $0.repositoryID,
-        )
-      }
-    let deleteTargets =
-      effectiveSelectedRows
-      .filter { $0.lifecycle == .idle }
-      .map {
-        RepositoriesFeature.DeleteWorktreeTarget(
-          worktreeID: $0.id,
-          repositoryID: $0.repositoryID,
-        )
-      }
+    // Reads only the selected rows' minimal fields (not every leaf's full state
+    // via `orderedSidebarItems()`), so this render-path body isn't invalidated
+    // by unrelated per-leaf ticks. See `sidebarSelectionActionTargets`.
+    let actionTargets = state.sidebarSelectionActionTargets
+    let archiveTargets = actionTargets.archive
+    let deleteTargets = actionTargets.delete
     let openRepo = AppShortcuts.openRepository.effective(from: settingsFile.global.shortcutOverrides)
 
     return SidebarListView(

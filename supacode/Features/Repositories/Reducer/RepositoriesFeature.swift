@@ -4093,6 +4093,37 @@ extension RepositoriesFeature.State {
     return selectedRows.isEmpty ? (selectedRow(for: selectedWorktreeID).map { [$0] } ?? []) : selectedRows
   }
 
+  /// Archive / delete action targets for the current sidebar selection, built
+  /// WITHOUT `orderedSidebarItems()`'s full per-row state walk. It resolves the
+  /// ordered selected IDs via `orderedSidebarItemIDs()` (IDs only) and reads just
+  /// the selected rows' `lifecycle` / `isMainWorktree` / `repositoryID`. This
+  /// keeps `SidebarView.body` (the render path) from observation-tracking every
+  /// leaf, so an unrelated per-leaf tick (notification, agent storm, running
+  /// script) doesn't re-run it. Order matches the visible sidebar order.
+  var sidebarSelectionActionTargets: (
+    archive: [RepositoriesFeature.ArchiveWorktreeTarget],
+    delete: [RepositoriesFeature.DeleteWorktreeTarget]
+  ) {
+    let rows: [SidebarItemFeature.State]
+    if sidebarSelectedWorktreeIDs.isEmpty {
+      rows = selectedRow(for: selectedWorktreeID).map { [$0] } ?? []
+    } else {
+      rows =
+        orderedSidebarItemIDs(includingRepositoryIDs: Set(repositories.map(\.id)))
+        .filter { sidebarSelectedWorktreeIDs.contains($0) }
+        .compactMap { sidebarItems[id: $0] }
+    }
+    var archive: [RepositoriesFeature.ArchiveWorktreeTarget] = []
+    var delete: [RepositoriesFeature.DeleteWorktreeTarget] = []
+    for row in rows where row.lifecycle == .idle {
+      delete.append(.init(worktreeID: row.id, repositoryID: row.repositoryID))
+      if !row.isMainWorktree {
+        archive.append(.init(worktreeID: row.id, repositoryID: row.repositoryID))
+      }
+    }
+    return (archive, delete)
+  }
+
   var expandedRepositoryIDs: Set<Repository.ID> {
     let repositoryIDs = Set(repositories.map(\.id))
     let collapsedSet: Set<Repository.ID> = Set(

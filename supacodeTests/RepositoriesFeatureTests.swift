@@ -581,6 +581,32 @@ struct RepositoriesFeatureTests {
     #expect(primaryRows.count == 2)
   }
 
+  @Test func sidebarSelectionActionTargetsMatchSelectedRowsLogic() {
+    let wt1 = makeWorktree(id: "/tmp/repo/wt1", name: "wt1", repoRoot: "/tmp/repo")
+    let wt2 = makeWorktree(id: "/tmp/repo/wt2", name: "wt2", repoRoot: "/tmp/repo")
+    let repository = makeRepository(id: "/tmp/repo", worktrees: [wt1, wt2])
+    var state = makeState(repositories: [repository])
+    state.reconcileSidebarForTesting()
+    state.sidebarSelectedWorktreeIDs = [wt1.id, wt2.id]
+
+    // The lightweight helper must match the previous full-row derivation
+    // (same filtering AND same visible order), it just avoids walking every row.
+    let targets = state.sidebarSelectionActionTargets
+    let rows = state.effectiveSidebarSelectedRows
+    let expectedDelete = rows.filter { $0.lifecycle == .idle }.map(\.id)
+    let expectedArchive = rows.filter { $0.lifecycle == .idle && !$0.isMainWorktree }.map(\.id)
+
+    #expect(targets.delete.map(\.worktreeID) == expectedDelete)
+    #expect(targets.archive.map(\.worktreeID) == expectedArchive)
+
+    // Fallback path (no multi-select) must also agree.
+    state.sidebarSelectedWorktreeIDs = []
+    state.selection = .worktree(wt1.id)
+    let fallback = state.sidebarSelectionActionTargets
+    let fallbackRows = state.effectiveSidebarSelectedRows
+    #expect(fallback.delete.map(\.worktreeID) == fallbackRows.filter { $0.lifecycle == .idle }.map(\.id))
+  }
+
   @Test func revealInSidebarExpandsCollapsedRepository() async {
     let worktree = makeWorktree(id: "/tmp/repo/wt", name: "wt")
     let repository = makeRepository(id: "/tmp/repo", worktrees: [worktree])
