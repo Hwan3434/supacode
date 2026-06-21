@@ -9,6 +9,7 @@ nonisolated enum HookEvent: String {
   case busy
   case awaitingInput = "awaiting_input"
   case idle
+  case error
 }
 
 nonisolated enum AgentHookSettingsCommand {

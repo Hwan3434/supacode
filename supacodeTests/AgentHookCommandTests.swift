@@ -21,15 +21,13 @@ struct AgentHookCommandTests {
 
   // MARK: - Claude canonical hook map.
 
-  @Test func claudePostToolUseFiresIdleNotBusy() throws {
-    // PostToolUse releases the shimmer when a tool finishes, so `busy` tracks
-    // active tool execution rather than the whole turn.
+  @Test func claudePostToolUseIsNotRegistered() throws {
+    // PostToolUse(idle) is intentionally disabled (see ClaudeHooksPayload), so
+    // `busy` spans the whole turn instead of being released per-tool — the
+    // shimmer tracks the turn, matching Codex / Kiro turn-level granularity.
+    // Asserting absence guards against an accidental re-add.
     let groups = try ClaudeHookSettings.hooksByEvent()
-    let postToolUse = try #require(groups["PostToolUse"])
-    let commands = Self.commandStrings(in: postToolUse)
-    #expect(!commands.isEmpty)
-    #expect(commands.allSatisfy { $0.contains("event=idle") })
-    #expect(commands.allSatisfy { !$0.contains("event=busy") })
+    #expect(groups["PostToolUse"] == nil)
   }
 
   @Test func claudePreToolUseOrdersAwaitingAfterBusy() throws {

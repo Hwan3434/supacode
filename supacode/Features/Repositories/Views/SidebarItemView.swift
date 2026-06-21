@@ -76,13 +76,6 @@ struct SidebarItemView: View {
       )
     }
     .labelStyle(.verticallyCentered)
-    .overlay(alignment: .bottom) {
-      if store.isTaskRunning {
-        TaskProgressLineOverlay()
-          .padding(.horizontal, 8)
-          .offset(y: 6)
-      }
-    }
     .listRowInsets(.leading, CGFloat(nestDepth) * SidebarNestLayout.indentStep)
     .listRowInsets(.trailing, 4)
     .listRowInsets(.vertical, 6)
@@ -503,7 +496,7 @@ private struct TrailingView: View {
           } else {
             RunningAgentsBadgeContent(
               agents: agents,
-              showsAwaitingIndicator: false,
+              showsAwaitingIndicator: hasAwaitingAgent,
               showsUnreadIndicator: false
             )
               .equatable()
@@ -641,29 +634,3 @@ extension EnvironmentValues {
     notificationEnvironmentLogger.warning("focusNotificationAction called but was never set in the environment.")
   }
 }
-
-private struct TaskProgressLineOverlay: View {
-  @State private var isAnimating = false
-
-  var body: some View {
-    GeometryReader { geo in
-      Rectangle()
-        .fill(
-          LinearGradient(
-            gradient: Gradient(colors: [.clear, Color.accentColor, .clear]),
-            startPoint: .leading,
-            endPoint: .trailing
-          )
-        )
-        .frame(width: geo.size.width * 0.5, height: 2)
-        .offset(x: isAnimating ? geo.size.width : -geo.size.width * 0.5)
-        .animation(.linear(duration: 1.5).repeatForever(autoreverses: false), value: isAnimating)
-        .onAppear {
-          isAnimating = true
-        }
-    }
-    .frame(height: 2)
-    .clipped()
-  }
-}
-

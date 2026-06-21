@@ -379,6 +379,7 @@ nonisolated struct AgentHookEvent: Equatable, Sendable, Decodable {
     case awaitingInput = "awaiting_input"
     case idle
     case notification
+    case error
   }
 
   let version: Int

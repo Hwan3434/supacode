@@ -13,6 +13,7 @@ struct AgentPresenceFeature {
     case awaitingInput
     case busy
     case idle
+    case error
   }
 
   /// One badge worth of state. Surface ID is redundant; callers scope by surface set.
@@ -204,6 +205,8 @@ struct AgentPresenceFeature {
       return applyActivity(.awaitingInput, event: event, key: key, into: &state) ? [event.surfaceID] : []
     case .idle:
       return applyActivity(.idle, event: event, key: key, into: &state) ? [event.surfaceID] : []
+    case .error:
+      return applyActivity(.error, event: event, key: key, into: &state) ? [event.surfaceID] : []
     case .notification, .none:
       return []
     }
@@ -294,7 +297,14 @@ struct AgentPresenceFeature {
           // pid, so they drop here and re-seed on the next OSC event post-relaunch.
           let pids = Set(record.pids.filter { $0 > 0 })
           guard !pids.isEmpty else { continue }
-          let activity = Activity(rawValue: record.activity) ?? .idle
+          // 앱 종료 시 미처 죽지 못한 고아 프로세스(Zombie/Orphan)가 살아남아 영원히
+          // 파란색 스피너(.busy)가 도는 현상을 방지하기 위해, 복원 시 자가 회복되는
+          // 활동상태(.busy/.error)는 .idle로 초기화합니다. tmux 등으로 정상적으로
+          // 살아있는 프로세스라면 이후 상태 변화 시 이벤트를 쏴서 복구됩니다.
+          // 단, 입력 대기(.awaitingInput)는 사용자가 응답해야 하는 parked 상태라
+          // 새 이벤트를 쏘지 않으므로 스냅샷 값을 그대로 보존합니다.
+          let restored = Activity(rawValue: record.activity) ?? .idle
+          let activity: Activity = restored == .awaitingInput ? .awaitingInput : .idle
           staged[PresenceKey(agent: agent, surfaceID: surfaceID)] =
             StagedRestore(pids: pids, activity: activity)
         }

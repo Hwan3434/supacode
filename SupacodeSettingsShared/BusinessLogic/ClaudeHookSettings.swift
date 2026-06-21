@@ -17,13 +17,13 @@ nonisolated enum ClaudeHookSettingsError: Error {
 
 // MARK: - Hook payload.
 
-// Atomic state-set: UserPromptSubmit / PreToolUse fire `busy`; PostToolUse
-// fires `idle` so the shimmer tracks active tool execution, not the whole turn
-// (the socket debounces idle to bridge between-tool gaps). AskUserQuestion /
-// ExitPlanMode / Notification overwrite to `awaitingInput`; Stop and SessionEnd
-// reset to `idle`. The pid liveness sweep is the safety net for crashed turns.
-// Only Claude has tool-level granularity; Codex and Kiro stay turn-level, so
-// their shimmer spans the whole turn.
+// Atomic state-set: UserPromptSubmit / PreToolUse fire `busy`. The
+// AskUserQuestion|ExitPlanMode PreToolUse matcher and PermissionRequest set
+// `awaitingInput` (an explicit prompt the user must answer). PostToolUseFailure
+// and PermissionDenied set `error`. Notification fires notify-only; Stop and
+// SessionEnd reset to `idle`. The pid liveness sweep is the safety net for
+// crashed turns. Only Claude has tool-level granularity; Codex and Kiro stay
+// turn-level, so their shimmer spans the whole turn.
 private nonisolated struct ClaudeHooksPayload: Encodable {
   static let awaitingInputToolMatcher = "AskUserQuestion|ExitPlanMode"
 
@@ -31,16 +31,18 @@ private nonisolated struct ClaudeHooksPayload: Encodable {
     events: [.busy], forwardStdinAsNotification: false, agent: .claude, )
   private static let idle = AgentHookSettingsCommand.compositeCommand(
     events: [.idle], forwardStdinAsNotification: false, agent: .claude, )
-  private static let awaitingInputAndNotify = AgentHookSettingsCommand.compositeCommand(
-    events: [.awaitingInput], forwardStdinAsNotification: true, agent: .claude, )
   private static let awaitingInput = AgentHookSettingsCommand.compositeCommand(
     events: [.awaitingInput], forwardStdinAsNotification: false, agent: .claude, )
+  private static let notifyOnly = AgentHookSettingsCommand.compositeCommand(
+    events: [], forwardStdinAsNotification: true, agent: .claude, )
   private static let idleAndNotify = AgentHookSettingsCommand.compositeCommand(
     events: [.idle], forwardStdinAsNotification: true, agent: .claude, )
   private static let sessionStart = AgentHookSettingsCommand.compositeCommand(
     events: [.sessionStart], forwardStdinAsNotification: false, agent: .claude, )
   private static let sessionEndAndIdle = AgentHookSettingsCommand.compositeCommand(
     events: [.sessionEnd, .idle], forwardStdinAsNotification: false, agent: .claude, )
+  private static let errorAndNotify = AgentHookSettingsCommand.compositeCommand(
+    events: [.error], forwardStdinAsNotification: true, agent: .claude, )
 
   let hooks: [String: [AgentHookGroup]] = [
     "SessionStart": [
@@ -57,14 +59,23 @@ private nonisolated struct ClaudeHooksPayload: Encodable {
         hooks: [.init(command: Self.awaitingInput, timeout: 5)],
       ),
     ],
+    "PermissionRequest": [
+      .init(hooks: [.init(command: Self.awaitingInput, timeout: 5)])
+    ],
     // "PostToolUse": [
     //   .init(matcher: "", hooks: [.init(command: Self.idle, timeout: 5)])
     // ],
     "Notification": [
-      .init(matcher: "", hooks: [.init(command: Self.awaitingInputAndNotify, timeout: 10)])
+      .init(matcher: "", hooks: [.init(command: Self.notifyOnly, timeout: 10)])
     ],
     "Stop": [
       .init(hooks: [.init(command: Self.idleAndNotify, timeout: 10)])
+    ],
+    "PostToolUseFailure": [
+      .init(hooks: [.init(command: Self.errorAndNotify, timeout: 10)])
+    ],
+    "PermissionDenied": [
+      .init(hooks: [.init(command: Self.errorAndNotify, timeout: 10)])
     ],
     "SessionEnd": [
       .init(matcher: "", hooks: [.init(command: Self.sessionEndAndIdle, timeout: 5)])

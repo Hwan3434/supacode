@@ -79,7 +79,13 @@ struct AgentBadgeView: View {
           }
         }
       
-      if showsUnreadIndicator && activity != .awaitingInput {
+      if activity == .error {
+        Circle()
+          .fill(Color.red)
+          .frame(width: size * 0.4, height: size * 0.4)
+          .overlay(Circle().strokeBorder(.background, lineWidth: 1))
+          .offset(x: size * 0.1, y: -size * 0.1)
+      } else if showsUnreadIndicator && activity != .awaitingInput {
         Circle()
           .fill(Color.orange)
           .frame(width: size * 0.4, height: size * 0.4)

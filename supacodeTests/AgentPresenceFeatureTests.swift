@@ -138,6 +138,21 @@ struct AgentPresenceFeatureTests {
     #expect(harness.state.hasActivity(in: [surfaceID]) == true)
   }
 
+  @Test func errorEventOverwritesActivityOnExistingRecord() {
+    // PostToolUseFailure / PermissionDenied hooks fire `error` after the turn is
+    // already `busy`, so the error must overwrite the live record's activity.
+    var harness = Harness()
+    let surfaceID = UUID()
+
+    harness.send(.hookEventReceived(makeEvent(.busy, agent: .claude, surfaceID: surfaceID)))
+    harness.send(.hookEventReceived(makeEvent(.error, agent: .claude, surfaceID: surfaceID)))
+
+    let key = AgentPresenceFeature.PresenceKey(agent: .claude, surfaceID: surfaceID)
+    #expect(harness.state.records[key]?.activity == .error)
+    // `.error` is not a `busy`-style activity, so it must not drive the shimmer.
+    #expect(harness.state.hasActivity(in: [surfaceID]) == false)
+  }
+
   @Test func pidlessSessionEndRemovesPidlessRecord() {
     var harness = Harness()
     let surfaceID = UUID()
@@ -603,9 +618,12 @@ struct AgentPresenceFeatureTests {
   // MARK: - restoreFromSnapshot (layouts-embedded).
 
   @Test func restoreFromLayoutsSeedsRecordsForSurfacesWithLivePids() {
-    // Sessions zmx kept alive across quit must surface their agent badges on
-    // first paint of the next launch instead of waiting for the next idle/busy
+    // Sessions kept alive across quit must surface their agent badges on first
+    // paint of the next launch instead of waiting for the next idle/busy
     // transition (agents only emit `session_start` once per process lifetime).
+    // A persisted `.busy` is reset to `.idle` on restore so an orphaned process
+    // that never re-emits doesn't spin forever; a genuinely live process re-emits
+    // its state on the next transition.
     var harness = Harness()
     let surfaceID = UUID()
     let livePid = getpid()
@@ -617,8 +635,42 @@ struct AgentPresenceFeatureTests {
 
     #expect(harness.state.bySurface[surfaceID] == [.claude])
     let key = AgentPresenceFeature.PresenceKey(agent: .claude, surfaceID: surfaceID)
-    #expect(harness.state.records[key]?.activity == .busy)
+    #expect(harness.state.records[key]?.activity == .idle)
     #expect(harness.state.records[key]?.pids == [livePid])
+  }
+
+  @Test func restoreFromLayoutsPreservesAwaitingInput() {
+    // `.awaitingInput` is a parked state the user must answer; a live process in
+    // it won't re-emit, so unlike `.busy` it must survive restore or the user
+    // loses the "waiting for you" badge after an app relaunch.
+    var harness = Harness()
+    let surfaceID = UUID()
+    let livePid = getpid()
+    let layout = makeLayout(surfaces: [
+      (surfaceID, [record(agent: .claude, pids: [livePid], activity: "awaitingInput")])
+    ])
+
+    harness.restoreFromLayouts([layout])
+
+    let key = AgentPresenceFeature.PresenceKey(agent: .claude, surfaceID: surfaceID)
+    #expect(harness.state.records[key]?.activity == .awaitingInput)
+    #expect(harness.state.records[key]?.pids == [livePid])
+  }
+
+  @Test func restoreFromLayoutsResetsErrorToIdle() {
+    // `.error` is transient like `.busy`: a live process self-corrects on its
+    // next transition, so a persisted error must not pin a red dot after restore.
+    var harness = Harness()
+    let surfaceID = UUID()
+    let livePid = getpid()
+    let layout = makeLayout(surfaces: [
+      (surfaceID, [record(agent: .claude, pids: [livePid], activity: "error")])
+    ])
+
+    harness.restoreFromLayouts([layout])
+
+    let key = AgentPresenceFeature.PresenceKey(agent: .claude, surfaceID: surfaceID)
+    #expect(harness.state.records[key]?.activity == .idle)
   }
 
   @Test func restoreFromLayoutsOnlyHydratesSurfacesThatExistInLayouts() {
