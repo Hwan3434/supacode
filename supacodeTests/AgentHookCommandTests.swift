@@ -1,3 +1,4 @@
+import ComposableArchitecture
 import Foundation
 import Testing
 
@@ -48,6 +49,53 @@ struct AgentHookCommandTests {
     #expect(second.objectValue?["matcher"]?.stringValue == "AskUserQuestion|ExitPlanMode")
     let secondCommand = try #require(Self.commandStrings(in: [second]).first)
     #expect(secondCommand.contains("event=awaiting_input"))
+  }
+
+  @Test func claudeStopNotifiesByDefault() throws {
+    @Shared(.settingsFile) var settingsFile
+    $settingsFile.withLock { $0.global = .default }
+    let groups = try ClaudeHookSettings.hooksByEvent()
+    let stop = try #require(groups["Stop"])
+    let command = try #require(Self.commandStrings(in: stop).first)
+    #expect(command.contains("notify"))
+  }
+
+  @Test func claudeStopDropsNotifyWhenTurnCompleteDisabled() throws {
+    @Shared(.settingsFile) var settingsFile
+    $settingsFile.withLock { $0.global.notifyOnTurnCompleteEnabled = false }
+    let groups = try ClaudeHookSettings.hooksByEvent()
+    let stop = try #require(groups["Stop"])
+    let command = try #require(Self.commandStrings(in: stop).first)
+    #expect(command.contains("event=idle"))
+    #expect(!command.contains("notify"))
+  }
+
+  @Test func claudeNotificationHookOmittedWhenAwaitingInputDisabled() throws {
+    @Shared(.settingsFile) var settingsFile
+    $settingsFile.withLock { $0.global.notifyOnAwaitingInputEnabled = false }
+    let groups = try ClaudeHookSettings.hooksByEvent()
+    #expect(groups["Notification"] == nil)
+  }
+
+  @Test func codexStopDropsNotifyWhenTurnCompleteDisabled() throws {
+    @Shared(.settingsFile) var settingsFile
+    $settingsFile.withLock { $0.global.notifyOnTurnCompleteEnabled = false }
+    let groups = try CodexHookSettings.hooksByEvent()
+    let stop = try #require(groups["Stop"])
+    let command = try #require(Self.commandStrings(in: stop).first)
+    #expect(!command.contains("notify"))
+  }
+
+  @Test func kiroStopDropsNotifyWhenTurnCompleteDisabled() throws {
+    @Shared(.settingsFile) var settingsFile
+    $settingsFile.withLock { $0.global.notifyOnTurnCompleteEnabled = false }
+    let groups = try KiroHookSettings.hooksByEvent()
+    let stop = try #require(groups["stop"])
+    // Kiro's entries are flat (command/timeout_ms), unlike Claude/Codex's
+    // nested AgentHookGroup shape — read `command` directly, not via
+    // `commandStrings(in:)`.
+    let command = try #require(stop.first?.objectValue?["command"]?.stringValue)
+    #expect(!command.contains("notify"))
   }
 
   private static func commandStrings(in groups: [JSONValue]) -> [String] {

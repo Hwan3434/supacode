@@ -56,6 +56,10 @@ public nonisolated struct GlobalSettings: Codable, Equatable, Sendable {
   public var globalScripts: [ScriptDefinition]
   public var richAgentNotificationsEnabled: Bool
   public var agentPresenceBadgesEnabled: Bool
+  /// Gates the notify leg of the turn-complete (Stop) hook across Claude/Codex/Kiro.
+  public var notifyOnTurnCompleteEnabled: Bool
+  /// Gates Claude's awaiting-input (Notification) hook. No Codex/Kiro equivalent.
+  public var notifyOnAwaitingInputEnabled: Bool
   /// When true, an agent integration that reports `.outdated` at launch /
   /// scene activation is silently re-installed so a Supacode update never
   /// strands stale hooks (e.g. legacy `Notification` / `PostToolUseFailure`
@@ -96,6 +100,8 @@ public nonisolated struct GlobalSettings: Codable, Equatable, Sendable {
     globalScripts: [],
     richAgentNotificationsEnabled: true,
     agentPresenceBadgesEnabled: true,
+    notifyOnTurnCompleteEnabled: true,
+    notifyOnAwaitingInputEnabled: true,
     autoUpdateAgentIntegrationsEnabled: true,
     confirmQuitMode: .auto,
     terminateSessionsOnQuit: false,
@@ -130,6 +136,8 @@ public nonisolated struct GlobalSettings: Codable, Equatable, Sendable {
     globalScripts: [ScriptDefinition] = [],
     richAgentNotificationsEnabled: Bool = true,
     agentPresenceBadgesEnabled: Bool = true,
+    notifyOnTurnCompleteEnabled: Bool = true,
+    notifyOnAwaitingInputEnabled: Bool = true,
     autoUpdateAgentIntegrationsEnabled: Bool = true,
     confirmQuitMode: ConfirmQuitMode = .auto,
     terminateSessionsOnQuit: Bool = false,
@@ -162,6 +170,8 @@ public nonisolated struct GlobalSettings: Codable, Equatable, Sendable {
     self.globalScripts = globalScripts
     self.richAgentNotificationsEnabled = richAgentNotificationsEnabled
     self.agentPresenceBadgesEnabled = agentPresenceBadgesEnabled
+    self.notifyOnTurnCompleteEnabled = notifyOnTurnCompleteEnabled
+    self.notifyOnAwaitingInputEnabled = notifyOnAwaitingInputEnabled
     self.autoUpdateAgentIntegrationsEnabled = autoUpdateAgentIntegrationsEnabled
     self.confirmQuitMode = confirmQuitMode
     self.terminateSessionsOnQuit = terminateSessionsOnQuit
@@ -291,6 +301,12 @@ public nonisolated struct GlobalSettings: Codable, Equatable, Sendable {
     agentPresenceBadgesEnabled =
       try container.decodeIfPresent(Bool.self, forKey: .agentPresenceBadgesEnabled)
       ?? Self.default.agentPresenceBadgesEnabled
+    notifyOnTurnCompleteEnabled =
+      try container.decodeIfPresent(Bool.self, forKey: .notifyOnTurnCompleteEnabled)
+      ?? Self.default.notifyOnTurnCompleteEnabled
+    notifyOnAwaitingInputEnabled =
+      try container.decodeIfPresent(Bool.self, forKey: .notifyOnAwaitingInputEnabled)
+      ?? Self.default.notifyOnAwaitingInputEnabled
     autoUpdateAgentIntegrationsEnabled =
       try container.decodeIfPresent(Bool.self, forKey: .autoUpdateAgentIntegrationsEnabled)
       ?? Self.default.autoUpdateAgentIntegrationsEnabled

@@ -343,6 +343,38 @@ struct WorktreeTerminalManagerTests {
     }
   }
 
+  @Test func appendNotificationPrunesOldestBeyondCap() {
+    withDependencies {
+      $0.date.now = Date(timeIntervalSince1970: 1_234)
+      $0.continuousClock = ImmediateClock()
+    } operation: {
+      let manager = WorktreeTerminalManager(runtime: GhosttyRuntime())
+      let worktree = makeWorktree(id: "/tmp/repo/cap-test")
+
+      manager.handleCommand(.runBlockingScript(worktree, kind: .archive, script: "echo ok"))
+
+      guard let state = manager.stateIfExists(for: worktree.id),
+        let tabId = state.tabManager.selectedTabId,
+        let surface = state.splitTree(for: tabId).root?.leftmostLeaf()
+      else {
+        Issue.record("Expected blocking script tab")
+        return
+      }
+
+      let overflow = 5
+      for index in 0..<(WorktreeTerminalState.maxNotificationLogSize + overflow) {
+        state.appendHookNotification(title: "Turn \(index)", body: "Body \(index)", surfaceID: surface.id)
+      }
+
+      #expect(state.notifications.count == WorktreeTerminalState.maxNotificationLogSize)
+      // Insert is newest-first; the oldest `overflow` entries (lowest indices)
+      // must have been dropped, leaving only the most recent ones.
+      let titles = Set(state.notifications.map(\.title))
+      #expect(!titles.contains("Turn 0"))
+      #expect(titles.contains("Turn \(WorktreeTerminalState.maxNotificationLogSize + overflow - 1)"))
+    }
+  }
+
   @Test func notificationIndicatorUsesCurrentCountOnStreamStart() async {
     let manager = WorktreeTerminalManager(runtime: GhosttyRuntime())
     let worktree = makeWorktree()

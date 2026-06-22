@@ -69,6 +69,8 @@ public struct SettingsFeature {
     public var globalScripts: [ScriptDefinition]
     public var richAgentNotificationsEnabled: Bool
     public var agentPresenceBadgesEnabled: Bool
+    public var notifyOnTurnCompleteEnabled: Bool
+    public var notifyOnAwaitingInputEnabled: Bool
     public var autoUpdateAgentIntegrationsEnabled: Bool
     public var confirmQuitMode: ConfirmQuitMode
     public var terminateSessionsOnQuit: Bool
@@ -110,6 +112,8 @@ public struct SettingsFeature {
       globalScripts = settings.globalScripts
       richAgentNotificationsEnabled = settings.richAgentNotificationsEnabled
       agentPresenceBadgesEnabled = settings.agentPresenceBadgesEnabled
+      notifyOnTurnCompleteEnabled = settings.notifyOnTurnCompleteEnabled
+      notifyOnAwaitingInputEnabled = settings.notifyOnAwaitingInputEnabled
       autoUpdateAgentIntegrationsEnabled = settings.autoUpdateAgentIntegrationsEnabled
       confirmQuitMode = settings.confirmQuitMode
       terminateSessionsOnQuit = settings.terminateSessionsOnQuit
@@ -149,6 +153,8 @@ public struct SettingsFeature {
         globalScripts: globalScripts,
         richAgentNotificationsEnabled: richAgentNotificationsEnabled,
         agentPresenceBadgesEnabled: agentPresenceBadgesEnabled,
+        notifyOnTurnCompleteEnabled: notifyOnTurnCompleteEnabled,
+        notifyOnAwaitingInputEnabled: notifyOnAwaitingInputEnabled,
         autoUpdateAgentIntegrationsEnabled: autoUpdateAgentIntegrationsEnabled,
         confirmQuitMode: confirmQuitMode,
         terminateSessionsOnQuit: terminateSessionsOnQuit,
@@ -163,6 +169,8 @@ public struct SettingsFeature {
     case setSelection(SettingsSection?)
     case setSystemNotificationsEnabled(Bool)
     case setAutomatedActionPolicy(AutomatedActionPolicy)
+    case setNotifyOnTurnCompleteEnabled(Bool)
+    case setNotifyOnAwaitingInputEnabled(Bool)
     case showNotificationPermissionAlert(errorMessage: String?)
     case updateShortcut(id: AppShortcutID, override: AppShortcutOverride?)
     case toggleShortcutEnabled(id: AppShortcutID, enabled: Bool)
@@ -292,6 +300,8 @@ public struct SettingsFeature {
         state.globalScripts = normalizedSettings.globalScripts
         state.richAgentNotificationsEnabled = normalizedSettings.richAgentNotificationsEnabled
         state.agentPresenceBadgesEnabled = normalizedSettings.agentPresenceBadgesEnabled
+        state.notifyOnTurnCompleteEnabled = normalizedSettings.notifyOnTurnCompleteEnabled
+        state.notifyOnAwaitingInputEnabled = normalizedSettings.notifyOnAwaitingInputEnabled
         state.autoUpdateAgentIntegrationsEnabled = normalizedSettings.autoUpdateAgentIntegrationsEnabled
         state.confirmQuitMode = normalizedSettings.confirmQuitMode
         state.terminateSessionsOnQuit = normalizedSettings.terminateSessionsOnQuit
@@ -299,6 +309,19 @@ public struct SettingsFeature {
         state.syncGlobalDefaults(from: normalizedSettings)
         synchronizeRepositorySelection(for: &state)
         return .send(.delegate(.settingsChanged(normalizedSettings)))
+
+      case .setNotifyOnTurnCompleteEnabled(let isEnabled):
+        // Imperative (not a plain `.binding`) so it can persist synchronously
+        // and trigger an immediate reinstall — the toggle's effect would
+        // otherwise wait for the next Settings-screen visit's outdated-check.
+        state.notifyOnTurnCompleteEnabled = isEnabled
+        state.syncGlobalDefaults(from: state.globalSettings)
+        return .concatenate(persist(state), .send(.refreshAgentIntegrationStates))
+
+      case .setNotifyOnAwaitingInputEnabled(let isEnabled):
+        state.notifyOnAwaitingInputEnabled = isEnabled
+        state.syncGlobalDefaults(from: state.globalSettings)
+        return .concatenate(persist(state), .send(.refreshAgentIntegrationStates))
 
       case .binding:
         state.syncGlobalDefaults(from: state.globalSettings)

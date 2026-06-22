@@ -23,6 +23,14 @@ struct DeveloperSettingsView: View {
           Text("에이전트 배지")
           Text("코딩 에이전트가 해당 화면에서 실행 중일 때 사이드바 및 탭에 아이콘을 표시합니다.")
         }
+        Toggle(isOn: $store.notifyOnTurnCompleteEnabled.sending(\.setNotifyOnTurnCompleteEnabled)) {
+          Text("턴 완료 알림")
+          Text("에이전트가 응답을 마칠 때마다 알림을 보냅니다.")
+        }
+        Toggle(isOn: $store.notifyOnAwaitingInputEnabled.sending(\.setNotifyOnAwaitingInputEnabled)) {
+          Text("입력 대기 알림")
+          Text("Claude가 입력을 기다릴 때 알림을 보냅니다. (Claude만 해당)")
+        }
       } header: {
         Text("코딩 에이전트")
       } footer: {
