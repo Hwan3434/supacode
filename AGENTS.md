@@ -186,6 +186,8 @@ Reducer ← .repositories(.worktreeInfoEvent(Event)) ← AsyncStream<Event>
 
 ## Personal Fork Maintenance
 - This repository is a customized personal fork (soft fork) of the original Supacode project.
+- **Purpose**: Korean localization, custom keybindings, and other personal UX tweaks for solo daily use. There is no intent to publish, share, or upstream this fork — do not optimize for public-facing polish, documentation, or contributor experience.
+- **Never PR or push to the original upstream Supacode repository.** There is nothing to request upstream; if that ever changes, the user will say so explicitly.
 - **CI / Tuist Cloud**: We do NOT use Tuist Cloud authentication in our GitHub Actions, as we do not have access to the upstream Tuist project. DO NOT attempt to re-enable `tuist auth login` or add a Tuist project link.
 - **Branch Strategy**: 
   - The `main` branch tracks the upstream repository exactly (no personal changes).
