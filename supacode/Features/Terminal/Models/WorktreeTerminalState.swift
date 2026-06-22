@@ -106,6 +106,10 @@ final class WorktreeTerminalState {
   /// How long the agent's own OSC 9 is held before firing, waiting for a custom
   /// notification to supersede it. Covers the socket-vs-inline-stream arrival skew.
   private static let oscHoldWindow: TimeInterval = 0.5
+  /// Hard cap on the in-memory notification log per worktree (#12 — one worktree
+  /// hit 307 with no cap). FIFO: oldest beyond the cap is dropped silently on
+  /// insert, regardless of read state. `internal` so tests can reference it.
+  static let maxNotificationLogSize = 50
   /// Monotonic gap between two instants from the same clock. Opens the existentials
   /// so the suppression window can compare instants of the type-erased clock.
   private static func elapsed(
@@ -1816,6 +1820,17 @@ final class WorktreeTerminalState {
         ),
         at: 0,
       )
+      if notifications.count > Self.maxNotificationLogSize {
+        let dropped = notifications[Self.maxNotificationLogSize...]
+        let affectedSurfaceIDs = Set(dropped.map(\.surfaceID))
+        notifications.removeLast(notifications.count - Self.maxNotificationLogSize)
+        for affectedSurfaceID in affectedSurfaceIDs {
+          refreshSurfaceUnseenFlag(affectedSurfaceID)
+          if let tabId = tabID(containing: affectedSurfaceID) {
+            emitTabProjection(for: tabId)
+          }
+        }
+      }
       refreshSurfaceUnseenFlag(surfaceID)
       if let tabId = tabID(containing: surfaceID) {
         emitTabProjection(for: tabId)

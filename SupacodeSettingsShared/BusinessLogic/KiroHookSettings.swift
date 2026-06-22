@@ -1,3 +1,4 @@
+import ComposableArchitecture
 import Foundation
 
 nonisolated enum KiroHookSettings {
@@ -7,8 +8,9 @@ nonisolated enum KiroHookSettings {
   /// composite-command rationale (one Supacode-managed entry per slot →
   /// idempotent prune-and-replace).
   static func hooksByEvent() throws -> [String: [JSONValue]] {
-    try AgentHookPayloadSupport.extractHookGroups(
-      from: KiroHooksPayload(),
+    @Shared(.settingsFile) var settingsFile
+    return try AgentHookPayloadSupport.extractHookGroups(
+      from: KiroHooksPayload(notifyOnTurnComplete: settingsFile.global.notifyOnTurnCompleteEnabled),
       invalidConfiguration: KiroHookSettingsError.invalidConfiguration,
     )
   }
@@ -50,22 +52,42 @@ nonisolated struct KiroHookEntry: Encodable {
 // opens a Kiro session. Kiro has no SessionEnd analogue, so the badge
 // clears via the pid liveness sweep when the agent process exits.
 private nonisolated struct KiroHooksPayload: Encodable {
+  enum CodingKeys: String, CodingKey {
+    case hooks
+  }
+
+  // `hooks` is computed (conditional on `notifyOnTurnComplete`), so synthesis
+  // can't derive `encode(to:)` from CodingKeys alone — write it explicitly.
+  func encode(to encoder: any Encoder) throws {
+    var container = encoder.container(keyedBy: CodingKeys.self)
+    try container.encode(hooks, forKey: .hooks)
+  }
+
   private static let busy = AgentHookSettingsCommand.compositeCommand(
     events: [.busy], forwardStdinAsNotification: false, agent: .kiro, )
+  private static let idle = AgentHookSettingsCommand.compositeCommand(
+    events: [.idle], forwardStdinAsNotification: false, agent: .kiro, )
   private static let idleAndNotify = AgentHookSettingsCommand.compositeCommand(
     events: [.idle], forwardStdinAsNotification: true, agent: .kiro, )
   private static let sessionStart = AgentHookSettingsCommand.compositeCommand(
     events: [.sessionStart], forwardStdinAsNotification: false, agent: .kiro, )
 
-  let hooks: [String: [KiroHookEntry]] = [
-    "agentSpawn": [
-      KiroHookEntry(command: Self.sessionStart, timeoutMs: 5_000)
-    ],
-    "userPromptSubmit": [
-      KiroHookEntry(command: Self.busy, timeoutMs: KiroHookSettings.defaultTimeoutMs)
-    ],
-    "stop": [
-      KiroHookEntry(command: Self.idleAndNotify, timeoutMs: KiroHookSettings.defaultTimeoutMs)
-    ],
-  ]
+  let notifyOnTurnComplete: Bool
+
+  var hooks: [String: [KiroHookEntry]] {
+    [
+      "agentSpawn": [
+        KiroHookEntry(command: Self.sessionStart, timeoutMs: 5_000)
+      ],
+      "userPromptSubmit": [
+        KiroHookEntry(command: Self.busy, timeoutMs: KiroHookSettings.defaultTimeoutMs)
+      ],
+      "stop": [
+        KiroHookEntry(
+          command: notifyOnTurnComplete ? Self.idleAndNotify : Self.idle,
+          timeoutMs: KiroHookSettings.defaultTimeoutMs,
+        )
+      ],
+    ]
+  }
 }

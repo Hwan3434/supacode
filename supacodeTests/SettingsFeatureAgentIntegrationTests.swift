@@ -231,6 +231,36 @@ struct SettingsFeatureAgentIntegrationTests {
 
     #expect(!firstReachedFinish.value)
   }
+
+  // Ordering is load-bearing: `.setNotifyOnTurnCompleteEnabled` must persist the
+  // new value to `@Shared(.settingsFile)` synchronously BEFORE it triggers
+  // `.refreshAgentIntegrationStates`, otherwise the outdated-check would read
+  // the stale (pre-toggle) settings and silently no-op (toggle wouldn't take
+  // effect until the next Settings-screen visit).
+  @Test(.dependencies) func toggleNotifyOnTurnCompleteSeesUpdatedSettingsDuringReinstallCheck() async {
+    @Shared(.settingsFile) var settingsFile
+    $settingsFile.withLock { $0.global = .default }
+
+    let sawUpdatedSettingsDuringCheck = LockIsolated(false)
+    let store = TestStore(initialState: SettingsFeature.State(settings: .default)) {
+      SettingsFeature()
+    } withDependencies: {
+      $0[AgentIntegrationClient.self].state = { _ in
+        @Shared(.settingsFile) var settingsFile
+        if settingsFile.global.notifyOnTurnCompleteEnabled == false {
+          sawUpdatedSettingsDuringCheck.setValue(true)
+        }
+        return .installed
+      }
+    }
+
+    store.exhaustivity = .off(showSkippedAssertions: false)
+    await store.send(.setNotifyOnTurnCompleteEnabled(false))
+    await store.skipReceivedActions()
+
+    #expect(sawUpdatedSettingsDuringCheck.value)
+    #expect(settingsFile.global.notifyOnTurnCompleteEnabled == false)
+  }
 }
 
 private enum IntegrationTestError: LocalizedError {
