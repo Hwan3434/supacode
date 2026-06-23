@@ -185,6 +185,70 @@ struct ToolbarNotificationGroupingTests {
     #expect(groups.first?.worktrees.first?.name == "Spicy")
   }
 
+  @Test func filteredToWorktreeIDKeepsOnlySelectedWorktree() {
+    let repoAPath = "/tmp/repo-a"
+    let repoBPath = "/tmp/repo-b"
+
+    let repoAMain = makeWorktree(id: repoAPath, name: "main", repoRoot: repoAPath)
+    let repoAOne = makeWorktree(id: "\(repoAPath)/one", name: "one", repoRoot: repoAPath)
+    let repoBMain = makeWorktree(id: repoBPath, name: "main", repoRoot: repoBPath)
+
+    let repoA = makeRepository(id: repoAPath, name: "Repo A", worktrees: [repoAMain, repoAOne])
+    let repoB = makeRepository(id: repoBPath, name: "Repo B", worktrees: [repoBMain])
+
+    var state = RepositoriesFeature.State(reconciledRepositories: [repoA, repoB])
+    state.repositoryRoots = [repoA.rootURL, repoB.rootURL]
+
+    setRowNotifications(
+      &state, id: repoAOne.id,
+      notifications: [
+        WorktreeTerminalNotification(surfaceID: UUID(), title: "A1", body: "done", createdAt: .distantPast)
+      ], )
+    setRowNotifications(
+      &state, id: repoBMain.id,
+      notifications: [
+        WorktreeTerminalNotification(surfaceID: UUID(), title: "B1", body: "done", createdAt: .distantPast)
+      ], )
+
+    let filtered = state.computeToolbarNotificationGroups().filtered(toWorktreeID: repoAOne.id)
+
+    #expect(filtered.map(\.id) == [repoA.id])
+    #expect(filtered[0].worktrees.map(\.id) == [repoAOne.id])
+  }
+
+  @Test func filteredToWorktreeIDReturnsEmptyWhenNil() {
+    let repoPath = "/tmp/repo"
+    let main = makeWorktree(id: repoPath, name: "main", repoRoot: repoPath)
+    let repo = makeRepository(id: repoPath, name: "Repo", worktrees: [main])
+    var state = RepositoriesFeature.State(reconciledRepositories: [repo])
+    state.repositoryRoots = [repo.rootURL]
+
+    setRowNotifications(
+      &state, id: main.id,
+      notifications: [
+        WorktreeTerminalNotification(surfaceID: UUID(), title: "M", body: "done", createdAt: .distantPast)
+      ], )
+
+    #expect(state.computeToolbarNotificationGroups().filtered(toWorktreeID: nil).isEmpty)
+  }
+
+  @Test func filteredToWorktreeIDReturnsEmptyWhenWorktreeHasNoNotifications() {
+    let repoPath = "/tmp/repo"
+    let main = makeWorktree(id: repoPath, name: "main", repoRoot: repoPath)
+    let quiet = makeWorktree(id: "\(repoPath)/quiet", name: "quiet", repoRoot: repoPath)
+    let repo = makeRepository(id: repoPath, name: "Repo", worktrees: [main, quiet])
+    var state = RepositoriesFeature.State(reconciledRepositories: [repo])
+    state.repositoryRoots = [repo.rootURL]
+
+    setRowNotifications(
+      &state, id: main.id,
+      notifications: [
+        WorktreeTerminalNotification(surfaceID: UUID(), title: "M", body: "done", createdAt: .distantPast)
+      ], )
+
+    #expect(state.computeToolbarNotificationGroups().filtered(toWorktreeID: quiet.id).isEmpty)
+  }
+
   private func setRowNotifications(
     _ state: inout RepositoriesFeature.State,
     id: SidebarItemID,

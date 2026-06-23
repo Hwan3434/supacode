@@ -327,6 +327,7 @@ struct WorktreeDetailView: View {
     var body: some View {
       if let repositoriesStore {
         let groups = repositoriesStore.toolbarNotificationGroupsCache
+          .filtered(toWorktreeID: repositoriesStore.selectedWorktreeID)
         if !groups.isEmpty {
           let unseenWorktreeCount = groups.reduce(0) { $0 + $1.unseenWorktreeCount }
           ToolbarNotificationsPopoverButton(

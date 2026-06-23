@@ -26,6 +26,29 @@ struct ToolbarNotificationWorktreeGroup: Identifiable, Equatable {
   let hasUnseenNotifications: Bool
 }
 
+extension [ToolbarNotificationRepositoryGroup] {
+  /// Narrows the global notification groups to a single worktree so the toolbar
+  /// bell shows only the currently selected worktree's notifications. Returns an
+  /// empty array when `worktreeID` is nil or has no notifications, which collapses
+  /// the toolbar bell (matching the per-row sidebar bell's "only when present").
+  func filtered(toWorktreeID worktreeID: Worktree.ID?) -> [ToolbarNotificationRepositoryGroup] {
+    guard let worktreeID else {
+      return []
+    }
+    return compactMap { repository in
+      let matching = repository.worktrees.filter { $0.id == worktreeID }
+      guard !matching.isEmpty else {
+        return nil
+      }
+      return ToolbarNotificationRepositoryGroup(
+        id: repository.id,
+        name: repository.name,
+        worktrees: matching,
+      )
+    }
+  }
+}
+
 extension RepositoriesFeature.State {
   /// Reads notification data off the per-row `SidebarItemFeature.State`
   /// (populated via `terminalProjectionChanged`) instead of the live
