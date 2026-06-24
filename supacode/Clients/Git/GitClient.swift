@@ -590,10 +590,10 @@ struct GitClient {
     return arguments
   }
 
-  nonisolated func branchName(for worktreeURL: URL) async -> String? {
+  nonisolated func branchName(for worktreeURL: URL) -> String? {
     // `GitWorktreeHeadResolver` is a non-isolated enum doing plain synchronous
-    // file reads, so resolve it directly in this nonisolated async context
-    // rather than hopping the disk I/O onto the main actor.
+    // file reads, so resolve it directly rather than hopping the disk I/O onto
+    // the main actor.
     let headURL = GitWorktreeHeadResolver.headURL(
       for: worktreeURL,
       fileManager: .default,
@@ -622,7 +622,7 @@ struct GitClient {
   }
 
   nonisolated func lineChanges(at worktreeURL: URL) async -> (added: Int, removed: Int)? {
-    if await isWorktreeIndexLocked(worktreeURL) {
+    if isWorktreeIndexLocked(worktreeURL) {
       return nil
     }
     let path = worktreeURL.path(percentEncoded: false)
@@ -638,10 +638,10 @@ struct GitClient {
     }
   }
 
-  nonisolated private func isWorktreeIndexLocked(_ worktreeURL: URL) async -> Bool {
+  nonisolated private func isWorktreeIndexLocked(_ worktreeURL: URL) -> Bool {
     // `GitWorktreeHeadResolver` is a non-isolated enum doing plain synchronous
-    // file reads, so resolve it directly in this nonisolated async context
-    // rather than hopping the disk I/O onto the main actor.
+    // file reads, so resolve it directly rather than hopping the disk I/O onto
+    // the main actor.
     let headURL = GitWorktreeHeadResolver.headURL(
       for: worktreeURL,
       fileManager: .default,

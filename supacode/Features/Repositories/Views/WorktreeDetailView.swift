@@ -1074,7 +1074,7 @@ private struct ScriptMenu: View {
     .overlay {
       if hasRunning {
         RoundedRectangle(cornerRadius: 6, style: .continuous)
-          .stroke(Color(red: 0.200, green: 0.824, blue: 0.875), lineWidth: 2)
+          .stroke(Color.accentColor, lineWidth: 2)
           .padding(-5)
       }
     }

@@ -78,7 +78,7 @@ struct AgentBadgeView: View {
               .onDisappear { isPulsing = false }
           }
         }
-      
+
       if activity == .error {
         Circle()
           .fill(Color.red)

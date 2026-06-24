@@ -2783,10 +2783,8 @@ struct RepositoriesFeature {
             state.sidebar.sections[repositoryID]?.buckets[.unpinned]?.items.keys ?? []
           )
           if currentUnpinned != reordered {
-            withAnimation(.snappy(duration: 0.2)) {
-              state.$sidebar.withLock { sidebar in
-                sidebar.reorder(bucket: .unpinned, in: repositoryID, to: reordered)
-              }
+            state.$sidebar.withLock { sidebar in
+              sidebar.reorder(bucket: .unpinned, in: repositoryID, to: reordered)
             }
           }
         }

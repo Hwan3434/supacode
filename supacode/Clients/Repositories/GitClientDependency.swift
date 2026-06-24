@@ -104,7 +104,7 @@ extension GitClientDependency: DependencyKey {
     isBareRepository: { repoRoot in
       try await GitClient().isBareRepository(for: repoRoot)
     },
-    branchName: { await GitClient().branchName(for: $0) },
+    branchName: { GitClient().branchName(for: $0) },
     lineChanges: { await GitClient().lineChanges(at: $0) },
     remoteNames: { try await GitClient().remoteNames(for: $0) },
     fetchRemote: { remote, repoRoot in try await GitClient().fetchRemote(remote, for: repoRoot) },
