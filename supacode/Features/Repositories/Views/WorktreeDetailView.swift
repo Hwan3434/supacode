@@ -243,6 +243,11 @@ struct WorktreeDetailView: View {
         .id(selectedWorktree.id)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .ignoresSafeArea(.container, edges: .bottom)
+        .overlay(alignment: .topTrailing) {
+          AgentContextPopoverButton(rootURL: selectedWorktree.workingDirectory)
+            .padding(.top, 8)
+            .padding(.trailing, 12)
+        }
         .onAppear {
           if shouldFocusTerminal {
             store.send(.repositories(.consumeTerminalFocus(selectedWorktree.id)))
