@@ -485,29 +485,17 @@ private struct TrailingView: View {
             .equatable()
         }
         if !agents.isEmpty {
-          if showsNotificationIndicator {
-            NotificationPopoverButton(notifications: notifications) {
-              RunningAgentsBadgeContent(
-                agents: agents,
-                showsAwaitingIndicator: hasAwaitingAgent,
-                unreadSurfaceIDs: unreadSurfaceIDs
-              )
-              .equatable()
-            }
-          } else {
-            RunningAgentsBadgeContent(
-              agents: agents,
-              showsAwaitingIndicator: hasAwaitingAgent,
-              showsUnreadIndicator: false
-            )
-            .equatable()
-          }
+          RunningAgentsBadgeContent(
+            agents: agents,
+            showsAwaitingIndicator: hasAwaitingAgent,
+            unreadSurfaceIDs: showsNotificationIndicator ? unreadSurfaceIDs : []
+          )
+          .equatable()
         }
         if hasStatus {
           StatusIndicator(
             runningScriptColors: effectiveScriptColors,
             showsNotificationIndicator: shouldShowNotificationDot,
-            notifications: notifications,
           )
           .equatable()
         }
@@ -593,15 +581,12 @@ private struct DiffStatsContent: View, Equatable {
 private struct StatusIndicator: View, Equatable {
   let runningScriptColors: [RepositoryColor]
   let showsNotificationIndicator: Bool
-  let notifications: [WorktreeTerminalNotification]
   // `==` ignores @Environment; SwiftUI tracks env changes separately.
   @Environment(\.backgroundProminence) private var backgroundProminence
-  @Environment(\.focusNotificationAction) private var focusNotificationAction: (WorktreeTerminalNotification) -> Void
 
   static func == (lhs: Self, rhs: Self) -> Bool {
     lhs.runningScriptColors == rhs.runningScriptColors
       && lhs.showsNotificationIndicator == rhs.showsNotificationIndicator
-      && lhs.notifications == rhs.notifications
   }
 
   var body: some View {
@@ -618,24 +603,14 @@ private struct StatusIndicator: View, Equatable {
           )
         }
         if showsNotificationIndicator {
-          NotificationPopoverButton(notifications: notifications) {
-            Circle()
-              .fill(.orange)
-              .frame(width: 6, height: 6)
-              .accessibilityLabel("Unread notifications")
-          }
-          .zIndex(1)
+          Circle()
+            .fill(.orange)
+            .frame(width: 6, height: 6)
+            .accessibilityLabel("Unread notifications")
+            .zIndex(1)
         }
       }
       .transition(.blurReplace)
     }
-  }
-}
-
-private nonisolated let notificationEnvironmentLogger = SupaLogger("Notifications")
-
-extension EnvironmentValues {
-  @Entry var focusNotificationAction: (WorktreeTerminalNotification) -> Void = { _ in
-    notificationEnvironmentLogger.warning("focusNotificationAction called but was never set in the environment.")
   }
 }

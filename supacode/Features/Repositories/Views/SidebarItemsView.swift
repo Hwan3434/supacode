@@ -5,8 +5,6 @@ import Sharing
 import SupacodeSettingsShared
 import SwiftUI
 
-private nonisolated let notificationLogger = SupaLogger("Notifications")
-
 struct SidebarItemsView: View {
   let repository: Repository
   /// Precomputed per-repo slot layout from `SidebarStructure`. The view does
@@ -505,16 +503,6 @@ private struct SidebarItemBody: View {
       nestDepth: nestDepth,
       highlightSubtitle: highlightSubtitle,
     )
-    .environment(\.focusNotificationAction) { notification in
-      guard let terminalState = terminalManager.stateIfExists(for: rowID) else {
-        notificationLogger.warning(
-          "No terminal state for worktree \(rowID) when focusing notification \(notification.surfaceID).")
-        return
-      }
-      if !terminalState.focusSurface(id: notification.surfaceID) {
-        notificationLogger.warning("Failed to focus surface \(notification.surfaceID) for worktree \(rowID).")
-      }
-    }
     .tag(SidebarSelection.worktree(rowID))
     .id(rowID)
     .typeSelectEquivalent("")
