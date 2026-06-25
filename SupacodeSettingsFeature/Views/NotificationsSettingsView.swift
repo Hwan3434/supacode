@@ -40,6 +40,24 @@ public struct NotificationsSettingsView: View {
           Text("읽지 않은 알림이 있는 워크트리가 목록 상단에 먼저 표시됩니다.")
         }
       }
+      Section("코딩 에이전트") {
+        Toggle(isOn: $store.richAgentNotificationsEnabled) {
+          Text("풍부한 에이전트 알림")
+          Text("에이전트 훅이 일반 알림 대신 마지막 메시지 기반 알림을 전달합니다.")
+        }
+        Toggle(isOn: $store.notifyOnTurnCompleteEnabled.sending(\.setNotifyOnTurnCompleteEnabled)) {
+          Text("턴 완료 알림")
+          Text("에이전트가 응답을 마칠 때 알림을 보냅니다.")
+        }
+        Toggle(isOn: $store.notifyOnAwaitingInputEnabled.sending(\.setNotifyOnAwaitingInputEnabled)) {
+          Text("입력 대기 알림")
+          Text("Claude가 입력을 기다릴 때 알림을 보냅니다.")
+        }
+        TextField("제목 템플릿", text: $store.agentNotificationTitleTemplate, prompt: Text("{title}"))
+        TextField("본문 템플릿", text: $store.agentNotificationBodyTemplate, prompt: Text("{body}"))
+        Text("사용 가능한 토큰: {repo}, {worktree}, {title}, {body}")
+          .foregroundStyle(.secondary)
+      }
     }
     .formStyle(.grouped)
     .padding(.top, -20)

@@ -71,6 +71,8 @@ public struct SettingsFeature {
     public var agentPresenceBadgesEnabled: Bool
     public var notifyOnTurnCompleteEnabled: Bool
     public var notifyOnAwaitingInputEnabled: Bool
+    public var agentNotificationTitleTemplate: String
+    public var agentNotificationBodyTemplate: String
     public var autoUpdateAgentIntegrationsEnabled: Bool
     public var confirmQuitMode: ConfirmQuitMode
     public var terminateSessionsOnQuit: Bool
@@ -114,6 +116,8 @@ public struct SettingsFeature {
       agentPresenceBadgesEnabled = settings.agentPresenceBadgesEnabled
       notifyOnTurnCompleteEnabled = settings.notifyOnTurnCompleteEnabled
       notifyOnAwaitingInputEnabled = settings.notifyOnAwaitingInputEnabled
+      agentNotificationTitleTemplate = settings.agentNotificationTitleTemplate
+      agentNotificationBodyTemplate = settings.agentNotificationBodyTemplate
       autoUpdateAgentIntegrationsEnabled = settings.autoUpdateAgentIntegrationsEnabled
       confirmQuitMode = settings.confirmQuitMode
       terminateSessionsOnQuit = settings.terminateSessionsOnQuit
@@ -155,6 +159,8 @@ public struct SettingsFeature {
         agentPresenceBadgesEnabled: agentPresenceBadgesEnabled,
         notifyOnTurnCompleteEnabled: notifyOnTurnCompleteEnabled,
         notifyOnAwaitingInputEnabled: notifyOnAwaitingInputEnabled,
+        agentNotificationTitleTemplate: agentNotificationTitleTemplate,
+        agentNotificationBodyTemplate: agentNotificationBodyTemplate,
         autoUpdateAgentIntegrationsEnabled: autoUpdateAgentIntegrationsEnabled,
         confirmQuitMode: confirmQuitMode,
         terminateSessionsOnQuit: terminateSessionsOnQuit,
@@ -302,6 +308,8 @@ public struct SettingsFeature {
         state.agentPresenceBadgesEnabled = normalizedSettings.agentPresenceBadgesEnabled
         state.notifyOnTurnCompleteEnabled = normalizedSettings.notifyOnTurnCompleteEnabled
         state.notifyOnAwaitingInputEnabled = normalizedSettings.notifyOnAwaitingInputEnabled
+        state.agentNotificationTitleTemplate = normalizedSettings.agentNotificationTitleTemplate
+        state.agentNotificationBodyTemplate = normalizedSettings.agentNotificationBodyTemplate
         state.autoUpdateAgentIntegrationsEnabled = normalizedSettings.autoUpdateAgentIntegrationsEnabled
         state.confirmQuitMode = normalizedSettings.confirmQuitMode
         state.terminateSessionsOnQuit = normalizedSettings.terminateSessionsOnQuit

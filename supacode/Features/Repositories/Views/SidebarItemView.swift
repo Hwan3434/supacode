@@ -466,6 +466,7 @@ private struct TrailingView: View {
     let effectiveScriptColors = scriptColors
     let showsNotificationIndicator = store.hasUnseenNotifications
     let notifications = Array(store.notifications)
+    let unreadSurfaceIDs = Set(notifications.lazy.filter { !$0.isRead }.map(\.surfaceID))
     let added = store.addedLines ?? 0
     let removed = store.removedLines ?? 0
     let hasStats = added + removed > 0
@@ -489,9 +490,9 @@ private struct TrailingView: View {
               RunningAgentsBadgeContent(
                 agents: agents,
                 showsAwaitingIndicator: hasAwaitingAgent,
-                showsUnreadIndicator: true
+                unreadSurfaceIDs: unreadSurfaceIDs
               )
-                .equatable()
+              .equatable()
             }
           } else {
             RunningAgentsBadgeContent(
@@ -499,7 +500,7 @@ private struct TrailingView: View {
               showsAwaitingIndicator: hasAwaitingAgent,
               showsUnreadIndicator: false
             )
-              .equatable()
+            .equatable()
           }
         }
         if hasStatus {
@@ -540,15 +541,18 @@ private struct RunningAgentsBadgeContent: View, Equatable {
   let agents: [AgentPresenceFeature.AgentInstance]
   let showsAwaitingIndicator: Bool
   let showsUnreadIndicator: Bool
+  let unreadSurfaceIDs: Set<UUID>
 
   init(
     agents: [AgentPresenceFeature.AgentInstance],
     showsAwaitingIndicator: Bool = true,
-    showsUnreadIndicator: Bool = false
+    showsUnreadIndicator: Bool = false,
+    unreadSurfaceIDs: Set<UUID> = []
   ) {
     self.agents = agents
     self.showsAwaitingIndicator = showsAwaitingIndicator
     self.showsUnreadIndicator = showsUnreadIndicator
+    self.unreadSurfaceIDs = unreadSurfaceIDs
   }
 
   var body: some View {
@@ -556,7 +560,8 @@ private struct RunningAgentsBadgeContent: View, Equatable {
       instances: agents,
       size: 16,
       showsAwaitingIndicator: showsAwaitingIndicator,
-      showsUnreadIndicator: showsUnreadIndicator
+      showsUnreadIndicator: showsUnreadIndicator,
+      unreadSurfaceIDs: unreadSurfaceIDs
     )
   }
 }

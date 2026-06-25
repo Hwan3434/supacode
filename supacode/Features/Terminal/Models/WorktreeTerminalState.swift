@@ -1807,14 +1807,21 @@ final class WorktreeTerminalState {
     let trimmedTitle = title.trimmingCharacters(in: .whitespacesAndNewlines)
     let trimmedBody = body.trimmingCharacters(in: .whitespacesAndNewlines)
     guard !(trimmedTitle.isEmpty && trimmedBody.isEmpty) else { return }
+    @Shared(.settingsFile) var settingsFile
+    let text = Self.applyNotificationTemplates(
+      title: trimmedTitle,
+      body: trimmedBody,
+      worktree: worktree,
+      settings: settingsFile.global,
+    )
     if notificationsEnabled {
       let previousHasUnseen = hasUnseenNotification
       let isRead = isSelected() && isFocusedSurface(surfaceID)
       notifications.insert(
         WorktreeTerminalNotification(
           surfaceID: surfaceID,
-          title: trimmedTitle,
-          body: trimmedBody,
+          title: text.title,
+          body: text.body,
           createdAt: now,
           isRead: isRead,
         ),
@@ -1837,7 +1844,49 @@ final class WorktreeTerminalState {
       }
       emitNotificationIndicatorIfNeeded(previousHasUnseen: previousHasUnseen)
     }
-    onNotificationReceived?(surfaceID, trimmedTitle, trimmedBody)
+    onNotificationReceived?(surfaceID, text.title, text.body)
+  }
+
+  nonisolated static func applyNotificationTemplates(
+    title: String,
+    body: String,
+    worktree: Worktree,
+    settings: GlobalSettings,
+  ) -> (title: String, body: String) {
+    let values = [
+      "{repo}": worktree.repositoryRootURL.lastPathComponent,
+      "{worktree}": worktree.name,
+      "{title}": title,
+      "{body}": body,
+    ]
+    let renderedTitle = renderNotificationTemplate(
+      settings.agentNotificationTitleTemplate,
+      fallback: title,
+      values: values,
+      max: 200,
+    )
+    let renderedBody = renderNotificationTemplate(
+      settings.agentNotificationBodyTemplate,
+      fallback: body,
+      values: values,
+      max: 1000,
+    )
+    return (renderedTitle, renderedBody)
+  }
+
+  private nonisolated static func renderNotificationTemplate(
+    _ template: String,
+    fallback: String,
+    values: [String: String],
+    max: Int,
+  ) -> String {
+    let source = template.trimmingCharacters(in: .whitespacesAndNewlines)
+    guard !source.isEmpty else { return fallback }
+    let rendered = values.reduce(source) { partial, entry in
+      partial.replacing(entry.key, with: entry.value)
+    }
+    let sanitized = sanitizeNotificationText(rendered, max: max)
+    return sanitized.isEmpty ? fallback : sanitized
   }
 
   /// Detaches one surface from the local bookkeeping. The zmx session is NOT

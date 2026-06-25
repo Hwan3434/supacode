@@ -414,9 +414,9 @@ struct AgentPresenceFeatureTests {
     // Sorted by rawValue: claude, claude, codex. None awaiting.
     #expect(
       combined == [
-        .init(agent: .claude, activity: .idle),
-        .init(agent: .claude, activity: .idle),
-        .init(agent: .codex, activity: .idle),
+        .init(agent: .claude, activity: .idle, surfaceID: surfaceA),
+        .init(agent: .claude, activity: .idle, surfaceID: surfaceB),
+        .init(agent: .codex, activity: .idle, surfaceID: surfaceB),
       ]
     )
   }
@@ -438,9 +438,9 @@ struct AgentPresenceFeatureTests {
     let combined = harness.state.agents(across: [surfaceA, surfaceB], badgesEnabled: true)
     #expect(
       combined == [
-        .init(agent: .claude, activity: .awaitingInput),
-        .init(agent: .claude, activity: .idle),
-        .init(agent: .codex, activity: .idle),
+        .init(agent: .claude, activity: .awaitingInput, surfaceID: surfaceB),
+        .init(agent: .claude, activity: .idle, surfaceID: surfaceA),
+        .init(agent: .codex, activity: .idle, surfaceID: surfaceA),
       ]
     )
   }

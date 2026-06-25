@@ -18,19 +18,22 @@ struct AgentAvatarGroupView: View {
   let maxVisible: Int
   let showsAwaitingIndicator: Bool
   let showsUnreadIndicator: Bool
+  let unreadSurfaceIDs: Set<UUID>
 
   init(
     instances: [AgentPresenceFeature.AgentInstance],
     size: CGFloat = 14,
     maxVisible: Int = 3,
     showsAwaitingIndicator: Bool = true,
-    showsUnreadIndicator: Bool = false
+    showsUnreadIndicator: Bool = false,
+    unreadSurfaceIDs: Set<UUID> = []
   ) {
     self.instances = instances
     self.size = size
     self.maxVisible = maxVisible
     self.showsAwaitingIndicator = showsAwaitingIndicator
     self.showsUnreadIndicator = showsUnreadIndicator
+    self.unreadSurfaceIDs = unreadSurfaceIDs
   }
 
   /// Convenience for static lineups (e.g. the sidebar setup card showing
@@ -58,6 +61,7 @@ struct AgentAvatarGroupView: View {
         agent: instance.agent,
         occurrence: occurrence,
         activity: instance.activity,
+        surfaceID: instance.surfaceID,
         // Leftmost on top — stable regardless of `maxVisible`.
         zIndex: Double(total - index),
       )
@@ -68,8 +72,13 @@ struct AgentAvatarGroupView: View {
     let agent: SkillAgent
     let occurrence: Int
     let activity: AgentPresenceFeature.Activity
+    let surfaceID: UUID?
     let zIndex: Double
     var id: AnyHashable { [AnyHashable(agent), AnyHashable(occurrence)] }
+
+    func hasUnreadNotification(in surfaceIDs: Set<UUID>) -> Bool {
+      surfaceID.map(surfaceIDs.contains) ?? false
+    }
   }
 
   var body: some View {
@@ -82,7 +91,7 @@ struct AgentAvatarGroupView: View {
               size: size,
               activity: slot.activity,
               showsAwaitingIndicator: showsAwaitingIndicator,
-              showsUnreadIndicator: showsUnreadIndicator
+              showsUnreadIndicator: showsUnreadIndicator || slot.hasUnreadNotification(in: unreadSurfaceIDs)
             )
             .zIndex(slot.zIndex)
           }

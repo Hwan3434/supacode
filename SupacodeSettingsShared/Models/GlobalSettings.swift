@@ -60,6 +60,10 @@ public nonisolated struct GlobalSettings: Codable, Equatable, Sendable {
   public var notifyOnTurnCompleteEnabled: Bool
   /// Gates Claude's awaiting-input (Notification) hook. No Codex/Kiro equivalent.
   public var notifyOnAwaitingInputEnabled: Bool
+  /// Optional template for the notification title. Empty means use the agent-provided title.
+  public var agentNotificationTitleTemplate: String
+  /// Optional template for the notification body. Empty means use the agent-provided body.
+  public var agentNotificationBodyTemplate: String
   /// When true, an agent integration that reports `.outdated` at launch /
   /// scene activation is silently re-installed so a Supacode update never
   /// strands stale hooks (e.g. legacy `Notification` / `PostToolUseFailure`
@@ -102,6 +106,8 @@ public nonisolated struct GlobalSettings: Codable, Equatable, Sendable {
     agentPresenceBadgesEnabled: true,
     notifyOnTurnCompleteEnabled: true,
     notifyOnAwaitingInputEnabled: true,
+    agentNotificationTitleTemplate: "",
+    agentNotificationBodyTemplate: "",
     autoUpdateAgentIntegrationsEnabled: true,
     confirmQuitMode: .auto,
     terminateSessionsOnQuit: false,
@@ -138,6 +144,8 @@ public nonisolated struct GlobalSettings: Codable, Equatable, Sendable {
     agentPresenceBadgesEnabled: Bool = true,
     notifyOnTurnCompleteEnabled: Bool = true,
     notifyOnAwaitingInputEnabled: Bool = true,
+    agentNotificationTitleTemplate: String = "",
+    agentNotificationBodyTemplate: String = "",
     autoUpdateAgentIntegrationsEnabled: Bool = true,
     confirmQuitMode: ConfirmQuitMode = .auto,
     terminateSessionsOnQuit: Bool = false,
@@ -172,6 +180,8 @@ public nonisolated struct GlobalSettings: Codable, Equatable, Sendable {
     self.agentPresenceBadgesEnabled = agentPresenceBadgesEnabled
     self.notifyOnTurnCompleteEnabled = notifyOnTurnCompleteEnabled
     self.notifyOnAwaitingInputEnabled = notifyOnAwaitingInputEnabled
+    self.agentNotificationTitleTemplate = agentNotificationTitleTemplate
+    self.agentNotificationBodyTemplate = agentNotificationBodyTemplate
     self.autoUpdateAgentIntegrationsEnabled = autoUpdateAgentIntegrationsEnabled
     self.confirmQuitMode = confirmQuitMode
     self.terminateSessionsOnQuit = terminateSessionsOnQuit
@@ -307,6 +317,12 @@ public nonisolated struct GlobalSettings: Codable, Equatable, Sendable {
     notifyOnAwaitingInputEnabled =
       try container.decodeIfPresent(Bool.self, forKey: .notifyOnAwaitingInputEnabled)
       ?? Self.default.notifyOnAwaitingInputEnabled
+    agentNotificationTitleTemplate =
+      try container.decodeIfPresent(String.self, forKey: .agentNotificationTitleTemplate)
+      ?? Self.default.agentNotificationTitleTemplate
+    agentNotificationBodyTemplate =
+      try container.decodeIfPresent(String.self, forKey: .agentNotificationBodyTemplate)
+      ?? Self.default.agentNotificationBodyTemplate
     autoUpdateAgentIntegrationsEnabled =
       try container.decodeIfPresent(Bool.self, forKey: .autoUpdateAgentIntegrationsEnabled)
       ?? Self.default.autoUpdateAgentIntegrationsEnabled

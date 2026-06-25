@@ -375,6 +375,23 @@ struct WorktreeTerminalManagerTests {
     }
   }
 
+  @Test func notificationTemplatesRenderWorktreeContext() {
+    let worktree = makeWorktree(id: "/tmp/repo/feature-login")
+    var settings = GlobalSettings.default
+    settings.agentNotificationTitleTemplate = "{repo}/{worktree}: {title}"
+    settings.agentNotificationBodyTemplate = "{body} [{worktree}]"
+
+    let rendered = WorktreeTerminalState.applyNotificationTemplates(
+      title: "Done",
+      body: "All complete",
+      worktree: worktree,
+      settings: settings,
+    )
+
+    #expect(rendered.title == "repo/feature-login: Done")
+    #expect(rendered.body == "All complete [feature-login]")
+  }
+
   @Test func notificationIndicatorUsesCurrentCountOnStreamStart() async {
     let manager = WorktreeTerminalManager(runtime: GhosttyRuntime())
     let worktree = makeWorktree()

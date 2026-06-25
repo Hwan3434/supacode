@@ -16,10 +16,17 @@ struct AgentPresenceFeature {
     case error
   }
 
-  /// One badge worth of state. Surface ID is redundant; callers scope by surface set.
+  /// One badge worth of state.
   struct AgentInstance: Hashable, Sendable {
     let agent: SkillAgent
     let activity: Activity
+    let surfaceID: UUID?
+
+    init(agent: SkillAgent, activity: Activity, surfaceID: UUID? = nil) {
+      self.agent = agent
+      self.activity = activity
+      self.surfaceID = surfaceID
+    }
 
     /// The avatar group flips contrast on awaiting-input instances.
     var awaitingInput: Bool { activity == .awaitingInput }
@@ -392,7 +399,7 @@ extension AgentPresenceFeature.State {
         (bySurface[surfaceID] ?? []).map { agent in
           let activity =
             records[AgentPresenceFeature.PresenceKey(agent: agent, surfaceID: surfaceID)]?.activity ?? .idle
-          return AgentPresenceFeature.AgentInstance(agent: agent, activity: activity)
+          return AgentPresenceFeature.AgentInstance(agent: agent, activity: activity, surfaceID: surfaceID)
         }
       }
       .sorted { lhs, rhs in
