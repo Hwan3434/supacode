@@ -12,8 +12,8 @@ struct AgentContextPopoverButton: View {
       loadSnapshot()
     } label: {
       Image(systemName: "sparkles")
-        .font(.system(size: 13, weight: .semibold))
-        .frame(width: 28, height: 28)
+        .font(.system(size: 16, weight: .semibold))
+        .frame(width: 34, height: 34)
         .background(.regularMaterial, in: Circle())
         .overlay {
           Circle().stroke(.secondary.opacity(0.25), lineWidth: 1)
