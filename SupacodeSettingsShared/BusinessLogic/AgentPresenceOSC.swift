@@ -124,7 +124,7 @@ public nonisolated enum AgentPresenceOSC {
   public struct NotifySignal: Equatable, Sendable {
     public let agent: String
     /// Both nil-on-empty; the caller falls back to the agent name for a missing
-    /// title and shows a title-only toast for a missing body.
+    /// title and drops the notification when the body is missing.
     public let title: String?
     public let body: String?
     /// Raw base64 byte count of the body field on the wire, before decode. A
@@ -246,8 +246,9 @@ public nonisolated enum AgentPresenceOSC {
 
   /// Reads the hook JSON from stdin once, extracts a bounded title/body via a
   /// portable `awk` pass (no `jq`/`python`, so it works over SSH), base64s each,
-  /// and emits the OSC 3008 notify. Sending only the display fields keeps the wire
-  /// under libghostty's 2048-byte OSC ceiling. Locked to STANDARD base64.
+  /// and emits the OSC 3008 notify only when a body was present. Sending only the
+  /// display fields keeps the wire under libghostty's 2048-byte OSC ceiling.
+  /// Locked to STANDARD base64.
   static func emitNotifyShell(agent: SkillAgent) -> String {
     let payload = #"\033]3008;start=\#(agent.rawValue);\#(notifyMetadata(title: "%s", body: "%s"))\033\\"#
     let bodyKeys = notifyBodyKeys.joined(separator: ",")
@@ -256,6 +257,6 @@ public nonisolated enum AgentPresenceOSC {
       + #"-v budget=\#(notifyTitleByteBudget) '\#(notifyExtractAwk)' | base64 | tr -d '\n'); "#
       + #"__b=$(printf '%s' "$__in" | LC_ALL=C awk -v keys="\#(bodyKeys)" "#
       + #"-v budget=\#(notifyBodyByteBudget) '\#(notifyExtractAwk)' | base64 | tr -d '\n'); "#
-      + #"printf '\#(payload)' "$__t" "$__b" > "$__tty""#
+      + #"[ -n "$__b" ] && printf '\#(payload)' "$__t" "$__b" > "$__tty""#
   }
 }

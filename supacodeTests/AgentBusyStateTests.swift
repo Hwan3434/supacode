@@ -117,7 +117,8 @@ struct AgentBusyStateTests {
       )
 
       #expect(fixture.state.notifications.count == 1)
-      #expect(fixture.state.notifications[0].title == "Done")
+      #expect(fixture.state.notifications[0].title == "repo")
+      #expect(fixture.state.notifications[0].body == "All complete")
     }
   }
 
@@ -216,6 +217,25 @@ struct AgentBusyStateTests {
       await clock.advance(by: .seconds(0.5))
       await Task.megaYield()
       #expect(systemCount == 1)
+    }
+  }
+
+  @Test(.dependencies) func bodylessAgentOSCIsDroppedBeforeHold() async {
+    let clock = TestClock()
+    await withDependencies {
+      $0.date = .constant(Date(timeIntervalSince1970: 1000))
+      $0.continuousClock = clock
+    } operation: {
+      let fixture = makeStateWithSurface()
+      var systemCount = 0
+      fixture.state.onNotificationReceived = { _, _, _ in systemCount += 1 }
+
+      fixture.surface.bridge.onDesktopNotification?("Claude", "  \n")
+      await Task.megaYield()
+
+      #expect(fixture.state.debugPendingOSCCount == 0)
+      #expect(fixture.state.notifications.isEmpty)
+      #expect(systemCount == 0)
     }
   }
 

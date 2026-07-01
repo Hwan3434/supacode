@@ -282,16 +282,16 @@ struct AgentPresenceOSCTests {
     #expect(value.title == "codex")
   }
 
-  @Test func notificationShowsTitleOnlyToastWhenBodyAbsent() {
-    // A turn-complete notify with no body still fires, showing just the title.
-    let resolved = WorktreeTerminalState.notification(
+  @Test func notificationDropsNotifyWhenBodyAbsent() {
+    let result = WorktreeTerminalState.notification(
       id: "claude", metadata: Self.notifyMeta(), surfaceExists: true, )
-    guard case .success(let value) = resolved else {
-      Issue.record("expected success, got \(resolved)")
-      return
-    }
-    #expect(value.title == "claude")
-    #expect(value.body.isEmpty)
+    if case .failure(.empty) = result {} else { Issue.record("expected empty, got \(result)") }
+  }
+
+  @Test func notificationDropsWhitespaceOnlyBody() {
+    let result = WorktreeTerminalState.notification(
+      id: "claude", metadata: Self.notifyMeta(body: " \n\t"), surfaceExists: true, )
+    if case .failure(.empty) = result {} else { Issue.record("expected empty, got \(result)") }
   }
 
   @Test func notificationDropsPayloadThatSanitizesEmpty() {
