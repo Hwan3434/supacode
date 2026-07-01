@@ -337,7 +337,7 @@ struct WorktreeTerminalManagerTests {
 
       #expect(
         state.notifications.contains {
-          $0.title == "Done" && $0.body == "All complete"
+          $0.title == "repo" && $0.body == "All complete"
         }
       )
     }
@@ -369,9 +369,9 @@ struct WorktreeTerminalManagerTests {
       #expect(state.notifications.count == WorktreeTerminalState.maxNotificationLogSize)
       // Insert is newest-first; the oldest `overflow` entries (lowest indices)
       // must have been dropped, leaving only the most recent ones.
-      let titles = Set(state.notifications.map(\.title))
-      #expect(!titles.contains("Turn 0"))
-      #expect(titles.contains("Turn \(WorktreeTerminalState.maxNotificationLogSize + overflow - 1)"))
+      let bodies = Set(state.notifications.map(\.body))
+      #expect(!bodies.contains("Body 0"))
+      #expect(bodies.contains("Body \(WorktreeTerminalState.maxNotificationLogSize + overflow - 1)"))
     }
   }
 
@@ -390,6 +390,20 @@ struct WorktreeTerminalManagerTests {
 
     #expect(rendered.title == "repo/feature-login: Done")
     #expect(rendered.body == "All complete [feature-login]")
+  }
+
+  @Test func notificationTitleDefaultsToRepositoryName() {
+    let worktree = makeWorktree(id: "/tmp/repo/feature-login")
+
+    let rendered = WorktreeTerminalState.applyNotificationTemplates(
+      title: "Claude",
+      body: "All complete",
+      worktree: worktree,
+      settings: .default,
+    )
+
+    #expect(rendered.title == "repo")
+    #expect(rendered.body == "All complete")
   }
 
   @Test func notificationIndicatorUsesCurrentCountOnStreamStart() async {

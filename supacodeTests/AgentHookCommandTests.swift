@@ -440,6 +440,16 @@ struct AgentHookCommandTests {
     #expect(signal.body == "hi there")
   }
 
+  @Test func notifyWithEmptyBodyEmitsNoNotifySignalButKeepsPresence() throws {
+    let json = #"{"hook_event_name":"Stop","message":"","last_assistant_message":""}"#
+    let base: [String: String] = ["SUPACODE_SURFACE_ID": UUID().uuidString]
+    let command = AgentHookSettingsCommand.compositeCommand(
+      events: [.idle], forwardStdinAsNotification: true, agent: .claude, )
+    let tty = try runHookCommandCapturingTTY(command, env: base, stdin: json)
+    #expect(tty.contains("event=idle"))
+    #expect(!tty.contains("kind=notify"))
+  }
+
   @Test func notifyAwkPreservesEscapedQuotesNewlinesAndUnicode() throws {
     // The awk extractor must copy the escaped JSON value verbatim so embedded
     // quotes / newlines / unicode survive the round-trip, and pick the body via
@@ -618,7 +628,8 @@ struct AgentHookCommandTests {
       + #"-v budget=\#(AgentPresenceOSC.notifyTitleByteBudget) '\#(awk)' | base64 | tr -d '\n'); "#
       + #"__b=$(printf '%s' "$__in" | LC_ALL=C awk -v keys="\#(bodyKeys)" "#
       + #"-v budget=\#(AgentPresenceOSC.notifyBodyByteBudget) '\#(awk)' | base64 | tr -d '\n'); "#
-      + #"printf '\033]3008;start=\#(agent);kind=notify;title=%s;body=%s\033\\' "$__t" "$__b" > "$__tty"; "#
+      + #"[ -n "$__b" ] && printf '\033]3008;start=\#(agent);kind=notify;title=%s;body=%s\033\\' "#
+      + #""$__t" "$__b" > "$__tty"; "#
   }
 
   static let snapshotClaudeBusy =

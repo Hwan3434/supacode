@@ -16,13 +16,8 @@ Native terminal coding agents command center.
 
 ## Building
 
-Optionally warm the macOS Tuist cache from the repo root with:
-
-```bash
-mise exec -- tuist auth login
-mise exec -- tuist auth whoami
-make mac-warm-cache
-```
+This fork uses Tuist for local project generation only. Tuist Cloud authentication
+and the upstream project's remote cache are not used.
 
 ```bash
 make build-ghostty-xcframework   # Build GhosttyKit from Zig source
@@ -42,4 +37,3 @@ make format    # Run swift-format
 
 - I actual prefer a well written issue describing features/bugs u want rather than a vibe-coded PR
 - I review every line personally and will close if I feel like the quality is not up to standard
-

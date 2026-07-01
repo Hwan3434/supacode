@@ -1557,8 +1557,8 @@ final class WorktreeTerminalState {
       }
       // A body present on the wire but decoded empty means a truncation, an
       // escape-cut the shed loop couldn't recover, or a non-base64 (probe / forged)
-      // field: keep it out of silent-failure territory by logging, even though we
-      // still show the title-only toast.
+      // field: keep it out of silent-failure territory by logging before the
+      // empty-body gate drops it.
       if resolved.body.isEmpty, resolved.wireBodyByteCount > 0 {
         let wireBytes = resolved.wireBodyByteCount
         terminalStateLogger.warning(
@@ -1594,7 +1594,8 @@ final class WorktreeTerminalState {
 
   /// Pure parse decision for an OSC notify signal. Title/body are bounded and
   /// stripped of control characters since anything on the terminal can emit one.
-  /// Title falls back to the agent name; body may be empty.
+  /// Title falls back to the agent name; an empty body is rejected so a lifecycle
+  /// tick cannot become a title-only system notification.
   nonisolated static func notification(
     id: String,
     metadata: String,
@@ -1609,7 +1610,9 @@ final class WorktreeTerminalState {
     // already bounded, so they only bite on a hand-crafted oversized payload.
     let title = sanitizeNotificationText(notify.title ?? notify.agent, max: 200)
     let body = sanitizeNotificationText(notify.body ?? "", max: 1000)
-    guard !(title.isEmpty && body.isEmpty) else { return .failure(.empty) }
+    guard !body.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+      return .failure(.empty)
+    }
     return .success(ResolvedNotification(title: title, body: body, wireBodyByteCount: notify.wireBodyByteCount))
   }
 
@@ -1777,6 +1780,10 @@ final class WorktreeTerminalState {
   /// committed for this surface (hook-first); otherwise held briefly and dropped
   /// if a custom one supersedes it during the hold (OSC-9-first), else shown.
   private func handleAgentOSCNotification(title: String, body: String, surfaceID: UUID) {
+    guard !body.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+      terminalStateLogger.debug("Dropped bodyless agent OSC 9 notification for surface \(surfaceID).")
+      return
+    }
     if let last = lastCustomNotificationAt[surfaceID],
       Self.elapsed(from: last, to: clock.now) <= .seconds(Self.oscSuppressionAfterCustom)
     {
@@ -1806,7 +1813,7 @@ final class WorktreeTerminalState {
   private func appendNotification(title: String, body: String, surfaceID: UUID) {
     let trimmedTitle = title.trimmingCharacters(in: .whitespacesAndNewlines)
     let trimmedBody = body.trimmingCharacters(in: .whitespacesAndNewlines)
-    guard !(trimmedTitle.isEmpty && trimmedBody.isEmpty) else { return }
+    guard !trimmedBody.isEmpty else { return }
     @Shared(.settingsFile) var settingsFile
     let text = Self.applyNotificationTemplates(
       title: trimmedTitle,
@@ -1861,7 +1868,7 @@ final class WorktreeTerminalState {
     ]
     let renderedTitle = renderNotificationTemplate(
       settings.agentNotificationTitleTemplate,
-      fallback: title,
+      fallback: worktree.repositoryRootURL.lastPathComponent,
       values: values,
       max: 200,
     )
